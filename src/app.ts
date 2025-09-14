@@ -82,6 +82,6 @@ for (const team of teams) {
   console.log(`${team.city} ${team.name} Roster:`);
   for (const tp of team.players) {
     const a = tp.player.playerAttributes();
-    console.log(`- #${tp.number} ${tp.player.firstName} ${tp.player.lastName} (${tp.position}) STR ${a.Strenth} INT ${a.Intelligence} DEX ${a.Dexterity} CHA ${a.Charisma} CON ${a.Constitution} WIS ${a.Wisdom}`);
+    console.log(`- #${tp.number} ${tp.player.lastName}, ${tp.player.firstName} (${tp.position}, ${tp.player.battingSide('brief')}) STR ${a.Strenth} INT ${a.Intelligence} DEX ${a.Dexterity} CHA ${a.Charisma} CON ${a.Constitution} WIS ${a.Wisdom}`);
   }
 }

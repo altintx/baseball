@@ -9,6 +9,7 @@ import mexico from '../names/mexico.json';
 import cuba from '../names/cuba.json';
 import { Countries, Country } from "./country";
 import { Gender, Genders } from "./gender";
+import { Dexterity } from "./dexterity";
 
 type NameEntry = { name: string; weight: number };
 type CountryData = {
@@ -63,15 +64,23 @@ export class Player {
   country: Country;
   gender: Gender;
   proficencies: PlayerAttributePoint[];
+  dexterity: Dexterity;
 
-  constructor(attributes: { firstName: string, lastName: string, attributes: PlayerAttributePoint[], country?: Country, gender?: Gender }) {
+  constructor(attributes: { firstName: string, lastName: string, attributes: PlayerAttributePoint[], country?: Country, gender?: Gender, dexterity?: Dexterity }) {
     this.firstName = attributes.firstName;
     this.lastName = attributes.lastName;
     this.proficencies = attributes.attributes;
     this.country = attributes.country ?? "USA";
     this.gender = attributes.gender ?? "male";
+    this.dexterity = attributes.dexterity ?? "Right";
   }
 
+  battingSide(format: "brief"): string {
+    if (this.dexterity === "Ambidextrous") {
+      return format === "brief" ? "S" : "Ambidextrous";
+    }
+    return this.dexterity === "Right" ? (format === "brief" ? "R" : "Right") : (format === "brief" ? "L" : "Left");
+  }
   
   static generateRandomly<TCountry extends Country, TGender extends Gender>(
     country?: TCountry,
@@ -79,6 +88,7 @@ export class Player {
   ): Player {
     const countryChoice = country ?? (Countries[(Countries.length * Math.random()) | 0] as TCountry);
     const genderChoice = gender ?? (Genders[(Genders.length * Math.random()) | 0] as TGender);
+    const dexterity = (Math.random() < 0.05 ? "Ambidextrous" as const: Math.random() < 0.6 ? "Right" as const : "Left" as const);
     const attributes: PlayerAttributePoint[] = [];
     for(let type of PlayerAttributeBuckets) {
       attributes.push(new PlayerAttributePoint({ type, value: 9 }));
@@ -88,7 +98,8 @@ export class Player {
       lastName: generateLastName(countryChoice),
       gender,
       country,
-      attributes
+      attributes,
+      dexterity
     };
     return new Player(playerAttributes);
   }
