@@ -10,6 +10,7 @@ import cuba from '../names/cuba.json';
 import { Countries, Country } from "./country";
 import { Gender, Genders } from "./gender";
 import { Dexterity } from "./dexterity";
+import { Game } from "./game";
 
 type NameEntry = { name: string; weight: number };
 type CountryData = {
@@ -66,7 +67,7 @@ export class Player {
   proficencies: PlayerAttributePoint[];
   dexterity: Dexterity;
 
-  hp: number = 100;
+  hp: number;
 
   constructor(attributes: { firstName: string, lastName: string, attributes: PlayerAttributePoint[], country?: Country, gender?: Gender, dexterity?: Dexterity }) {
     this.firstName = attributes.firstName;
@@ -75,6 +76,7 @@ export class Player {
     this.country = attributes.country ?? "USA";
     this.gender = attributes.gender ?? "male";
     this.dexterity = attributes.dexterity ?? "Right";
+    this.hp = 100;
   }
 
   battingSide(format: "brief"): string {
@@ -125,5 +127,18 @@ export class Player {
       }
     }
     return result;
+  }
+
+  energy(game: Game): number {
+    const { Constitution } = this.playerAttributes();
+    const tp = game.home.team.players.find(tp => tp.player === this) ?? game.away.team.players.find(tp => tp.player === this);
+    if(!tp) throw new Error(`Player ${this.firstName} ${this.lastName} not found in either team for given game`);
+    if(tp.position !== "P") {
+      return Math.max(100, this.hp + Constitution * 2);
+    } else {
+      // Pitchers get fatigued faster
+      const pitches = game.pitches(this).length;
+      return 75 - pitches + Constitution * 2;
+    }
   }
 }

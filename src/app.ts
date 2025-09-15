@@ -88,7 +88,7 @@ for (const team of teams) {
 }
 
 const game = new Game(teams[0], teams[1], new Date());
-console.log(`Simulating game between ${game.away.team.city} ${game.away.team.name} and ${game.home.team.city} ${game.home.team.name} on ${game.date.toDateString()}`);
+console.log(`Simulating game between ${game.away.team.city} ${game.away.team.name} (away) and ${game.home.team.city} ${game.home.team.name} (home) on ${game.date.toDateString()}`);
 const outcome = game.simulate();
 console.log(`Final Score: ${game.away.team.name} ${game.runs('away')} - ${game.home.team.name} ${game.runs('home')}`);
 console.log(`${game.winner?.name ?? "No one"} won!`);
