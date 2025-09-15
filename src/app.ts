@@ -1,8 +1,9 @@
 import { Country } from "./entity/country";
+import { Game } from "./entity/game";
 import { Gender } from "./entity/gender";
 import { Player } from "./entity/player";
 import { PlayerAttributeBuckets, PlayerAttributePoint } from "./entity/player-attribute-point";
-import { positions } from "./entity/player-position";
+import { PlayerPositions } from "./entity/player-position";
 import { Team } from "./entity/team";
 import { TeamPlayer } from "./entity/team-player";
 import { UniformColor } from "./entity/uniform-color";
@@ -65,7 +66,7 @@ for (const team of teams) {
     const teamPlayer = new TeamPlayer({
       player,
       number: i + 1,
-      position: i < 9? positions[i]: "P",
+      position: i < 9? PlayerPositions[i]: "P",
       activeFrom: new Date("2023-04-01"),
     });
     team.players.push(teamPlayer);
@@ -85,3 +86,9 @@ for (const team of teams) {
     console.log(`- #${tp.number} ${tp.player.lastName}, ${tp.player.firstName} (${tp.position}, ${tp.player.battingSide('brief')}) STR ${a.Strenth} INT ${a.Intelligence} DEX ${a.Dexterity} CHA ${a.Charisma} CON ${a.Constitution} WIS ${a.Wisdom}`);
   }
 }
+
+const game = new Game(teams[0], teams[1], new Date());
+console.log(`Simulating game between ${game.away.team.city} ${game.away.team.name} and ${game.home.team.city} ${game.home.team.name} on ${game.date.toDateString()}`);
+const outcome = game.simulate();
+console.log(`Final Score: ${game.away.team.name} ${game.runs('away')} - ${game.home.team.name} ${game.runs('home')}`);
+console.log(`${game.winner?.name ?? "No one"} won!`);

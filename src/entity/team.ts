@@ -20,4 +20,11 @@ export class Team {
     this.awayColor = attributes.awayColor;
     this.players = [];
   }
+
+  bestPitcher(): TeamPlayer {
+    /* sort players by position === "P" and then by highest HP */
+    const pitchers = this.players.filter(p => p.position === "P");
+    if(pitchers.length === 0) throw new Error(`Team ${this.name} has no pitchers`);
+    return pitchers.sort((a, b) => b.player.hp - a.player.hp)[0];
+  }
 }

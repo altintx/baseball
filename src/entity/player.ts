@@ -66,6 +66,8 @@ export class Player {
   proficencies: PlayerAttributePoint[];
   dexterity: Dexterity;
 
+  hp: number = 100;
+
   constructor(attributes: { firstName: string, lastName: string, attributes: PlayerAttributePoint[], country?: Country, gender?: Gender, dexterity?: Dexterity }) {
     this.firstName = attributes.firstName;
     this.lastName = attributes.lastName;
