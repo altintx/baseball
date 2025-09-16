@@ -68,6 +68,7 @@ export class Player {
   dexterity: Dexterity;
 
   hp: number;
+  experience: number;
 
   constructor(attributes: { firstName: string, lastName: string, attributes: PlayerAttributePoint[], country?: Country, gender?: Gender, dexterity?: Dexterity }) {
     this.firstName = attributes.firstName;
@@ -77,6 +78,7 @@ export class Player {
     this.gender = attributes.gender ?? "male";
     this.dexterity = attributes.dexterity ?? "Right";
     this.hp = 100;
+    this.experience = 0;
   }
 
   battingSide(format: "brief"): string {
@@ -114,7 +116,7 @@ export class Player {
 
   playerAttributes(): Record<PlayerAttributeBucket, number> {
     const result: Record<PlayerAttributeBucket, number> = {
-      Strenth: 0,
+      Strength: 0,
       Intelligence: 0,
       Dexterity: 0,
       Charisma: 0,

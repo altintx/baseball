@@ -1,4 +1,4 @@
-export const PlayerAttributeBuckets = ["Strenth", "Intelligence", "Dexterity", "Charisma", "Constitution", "Wisdom"] as const;
+export const PlayerAttributeBuckets = ["Strength", "Intelligence", "Dexterity", "Charisma", "Constitution", "Wisdom"] as const;
 export type PlayerAttributeBucket = typeof PlayerAttributeBuckets[number];
 export class PlayerAttributePoint {
   type: PlayerAttributeBucket | null;

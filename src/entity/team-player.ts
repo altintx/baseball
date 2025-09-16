@@ -21,4 +21,9 @@ export class TeamPlayer {
     this.activeFrom = attributes.activeFrom;
     this.activeTo = attributes.activeTo ?? null;
   }
+
+  awardExperience(amount: number) {
+    console.log(`   ${this.player.lastName} gains ${amount} experience points.`);
+    this.player.experience += amount;
+  }
 }

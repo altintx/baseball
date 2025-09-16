@@ -52,11 +52,10 @@ export class Game {
         const offense = team === "away" ? this.away : this.home;
         const defense = team === "away" ? this.home : this.away;
         console.log(`  ${offense.team.city} ${offense.team.name} is batting`);
-        let outs = 0;
-        let runs = 0;
+        const outcome = currentInning.offensive();
         const field = new Field(defense.lineUp.positions)
         const atBats: AtBat[] = [];
-        while (outs < 3) {
+        while (outcome.outs < 3) {
           const batter = offense.lineUp.positions[offense.lineUp.battingOrder[this.positionInLineup[team] % 9]];
           const atBat = field.atBat(batter, defense.lineUp.positions["P"]);
           console.log("atBat", atBat.batter.player.lastName, "vs", atBat.pitcher.player.lastName);
@@ -70,24 +69,12 @@ export class Game {
               atBat.pitcher = newPitcher;
             } else if (pitcherEnergy < 50) {
               console.log(`  Pitcher is exhausted and no ${defense.team.name} relievers are available. Giving up the game.`);
-              outs = 3;
+              outcome.outs = 3;
               this.winner = offense.team;
               break;
             }
-            const result = atBat.simulate();
+            const result = atBat.simulate(field, this, currentInning);
             console.log(`  Pitch result: Balls: ${result.balls}, Strikes: ${result.strikes}`);
-            if(result.outcome) console.log(`  AtBat outcome: ${result.outcome}`);
-            switch (result.outcome) {
-              case "Error":
-              case "Out":
-                outs++;
-                break;
-              case "Hit":
-                runs++;
-                break;
-              case "Walk":
-                break;
-            }
           } while (atBat.outcome === null);
           this.positionInLineup[team]++;
           atBats.push(atBat);

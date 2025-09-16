@@ -10,8 +10,8 @@ import { UniformColor } from "./entity/uniform-color";
 
 const teams: Team[] = [
   new Team({
-  name: "Yankees",
-  city: "New York",
+  name: "Federals",
+  city: "Baltimore",
   homeColor: [new UniformColor({
     name: "Navy and White",
     primaryColor: "#0033A0",
@@ -34,8 +34,8 @@ const teams: Team[] = [
   ],
 }),
 new Team({
-  name: "Red Sox",
-  city: "Boston",
+  name: "Bald Eagles",
+  city: "Cheyenne",
   homeColor: [new UniformColor({
     name: "Red and White",
     primaryColor: "#BD3039",
@@ -83,12 +83,12 @@ for (const team of teams) {
   console.log(`${team.city} ${team.name} Roster:`);
   for (const tp of team.players) {
     const a = tp.player.playerAttributes();
-    console.log(`- #${tp.number} ${tp.player.lastName}, ${tp.player.firstName} (${tp.position}, ${tp.player.battingSide('brief')}) STR ${a.Strenth} INT ${a.Intelligence} DEX ${a.Dexterity} CHA ${a.Charisma} CON ${a.Constitution} WIS ${a.Wisdom}`);
+    console.log(`- #${tp.number} ${tp.player.lastName}, ${tp.player.firstName} (${tp.position}, ${tp.player.battingSide('brief')}) STR ${a.Strength} INT ${a.Intelligence} DEX ${a.Dexterity} CHA ${a.Charisma} CON ${a.Constitution} WIS ${a.Wisdom}`);
   }
 }
 
 const game = new Game(teams[0], teams[1], new Date());
 console.log(`Simulating game between ${game.away.team.city} ${game.away.team.name} (away) and ${game.home.team.city} ${game.home.team.name} (home) on ${game.date.toDateString()}`);
 const outcome = game.simulate();
-console.log(`Final Score: ${game.away.team.name} ${game.runs('away')} - ${game.home.team.name} ${game.runs('home')}`);
-console.log(`${game.winner?.name ?? "No one"} won!`);
+console.log(`Final Score: ${outcome.away.team.name} ${game.runs('away')} - ${outcome.home.team.name} ${outcome.runs('home')}`);
+console.log(`${outcome.winner?.name ?? "No one"} won!`);
