@@ -1,3 +1,4 @@
+import { Game } from "./game";
 import { Player } from "./player";
 import { PlayerPosition } from "./player-position";
 
@@ -22,8 +23,8 @@ export class TeamPlayer {
     this.activeTo = attributes.activeTo ?? null;
   }
 
-  awardExperience(amount: number) {
-    console.log(`   ${this.player.lastName} gains ${amount} experience points.`);
+  awardExperience(amount: number, game: Game) {
+    game.shouldLog("normal") && console.log(`   ${this.player.lastName} gains ${amount} experience points.`);
     this.player.experience += amount;
   }
 }

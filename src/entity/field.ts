@@ -1,4 +1,5 @@
 import { AtBat } from "./at-bat";
+import { Game } from "./game";
 import { Outcome } from "./inning";
 import { PlayerPosition } from "./player-position";
 import { TeamPlayer } from "./team-player";
@@ -11,7 +12,9 @@ export class Field {
     "3B": TeamPlayer | null;
     "H": TeamPlayer | null;
   };
-  constructor(defense: Record<PlayerPosition, TeamPlayer>) {
+  game: Game;
+
+  constructor(defense: Record<PlayerPosition, TeamPlayer>, game: Game) {
     this.fielders = defense;
     this.onBase = {
       "1B": null,
@@ -19,6 +22,7 @@ export class Field {
       "3B": null,
       "H": null,
     }
+    this.game = game;
   }
 
   atBat(batter: TeamPlayer, pitcher: TeamPlayer): AtBat {
@@ -33,15 +37,15 @@ export class Field {
       const nextBase = i + 1 === 1 ? "1B" : i + 1 === 2 ? "2B" : i + 1 === 3 ? "3B" : "H";
       if(this.onBase[base] && (i < forcedMovements || this.onBase[nextBase])) {
         if(nextBase === "H") {
-          console.log(`    ${this.onBase[base]!.player.lastName} scores!`);
-          this.onBase[base]!.awardExperience(10);
+          this.game.shouldLog("debug") && console.log(`    ${this.onBase[base]!.player.lastName} scores!`);
+          this.onBase[base]!.awardExperience(10, this.game);
           this.onBase[base] = null;
           inning.runs++;
         } else {
-          console.log(`    ${this.onBase[base]!.player.lastName} advances to ${nextBase}`);
+          this.game.shouldLog("debug") && console.log(`    ${this.onBase[base]!.player.lastName} advances to ${nextBase}`);
           this.onBase[nextBase] = this.onBase[base];
           this.onBase[base] = null;
-          this.onBase[nextBase]!.awardExperience(5);
+          this.onBase[nextBase]!.awardExperience(5, this.game);
         }
       }
     }

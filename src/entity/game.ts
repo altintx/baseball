@@ -61,7 +61,7 @@ export class Game {
         const defense = team === "away" ? this.home : this.away;
         this.shouldLog("quiet") && console.log(`  ${offense.team.city} ${offense.team.name} is batting`);
         const outcome = currentInning.offensive();
-        const field = new Field(defense.lineUp.positions)
+        const field = new Field(defense.lineUp.positions, this)
         const atBats: AtBat[] = [];
         while (outcome.outs < 3) {
           const batter = offense.lineUp.positions[offense.lineUp.battingOrder[this.positionInLineup[team] % 9]];

@@ -53,7 +53,7 @@ export class AtBat {
         if(Math.random() < pickoffSuccessChance - runnerJumpingAbility) {
           game.shouldLog("quiet") && console.log(`   ${field.onBase["1B"]!.player.lastName} is out at first!`);
           field.onBase["1B"] = null;
-          field.fielders.P.awardExperience(10);
+          field.fielders.P.awardExperience(10, game);
           offensiveInning.outs++;
         } else if (/* slight chance the runner tries to steal */ Math.random() < 0.1) {
           game.shouldLog("verbose") && console.log(`   ${field.onBase["1B"]!.player.lastName} is trying to steal second on the pickoff attempt!`);
@@ -72,7 +72,7 @@ export class AtBat {
         if(Math.random() < pickoffSuccessChance - runnerJumpingAbility) {
           game.shouldLog("quiet") && console.log(`   ${field.onBase["3B"]!.player.lastName} is out at third!`);
           field.onBase["3B"] = null;
-          field.fielders.P.awardExperience(10);
+          field.fielders.P.awardExperience(10, game);
           offensiveInning.outs++;
         } else {
           game.shouldLog("quiet") && console.log(`   ${this.pitcher.player.lastName} fails to pick off ${field.onBase["3B"]!.player.lastName}, who's still on third`);
@@ -92,13 +92,13 @@ export class AtBat {
         if(Math.random() < stealSuccessChance - catcherThrowingAbility) {
           game.shouldLog("quiet") && console.log(`   ${field.onBase["3B"]!.player.lastName} stole home!`);
           offensiveInning.runs++;
-          field.onBase["3B"]!.awardExperience(30);
+          field.onBase["3B"]!.awardExperience(30, game);
           field.onBase["3B"] = null;  
         } else {
           game.shouldLog("quiet") && console.log(`   ${field.onBase["3B"]!.player.lastName} is tagged out!`);
           field.onBase["3B"] = null;
-          field.fielders.C.awardExperience(20);
-          field.fielders.P.awardExperience(20);
+          field.fielders.C.awardExperience(20, game);
+          field.fielders.P.awardExperience(20, game);
           offensiveInning.outs++;
         }
       }
@@ -111,13 +111,13 @@ export class AtBat {
         const catcherThrowingAbility = (this.pitcher.player.playerAttributes().Intelligence * 0.3 + field.fielders["C"].player.playerAttributes().Dexterity * 0.7) / 200;
         if(Math.random() < stealSuccessChance - catcherThrowingAbility) {
           game.shouldLog("quiet") && console.log(`   ${field.onBase["2B"]!.player.lastName} stole third!`);
-          field.onBase["2B"]!.awardExperience(10);
+          field.onBase["2B"]!.awardExperience(10, game);
           field.onBase["3B"] = field.onBase["2B"];
           field.onBase["2B"] = null;  
         } else {
           game.shouldLog("quiet") && console.log(`   ${field.onBase["2B"]!.player.lastName} is tagged out!`);
           field.onBase["2B"] = null;
-          field.fielders.P.awardExperience(15);
+          field.fielders.P.awardExperience(15, game);
           offensiveInning.outs++;
         }
       }
@@ -130,13 +130,13 @@ export class AtBat {
         const catcherThrowingAbility = (this.pitcher.player.playerAttributes().Intelligence * 0.3 + field.fielders["C"].player.playerAttributes().Dexterity * 0.7) / 300; // pitcher had to throw to catcher, which takes a second and makes the out harder
         if(Math.random() < stealSuccessChance - catcherThrowingAbility) {
           game.shouldLog("quiet") && console.log(`   ${field.onBase["1B"]!.player.lastName} stole second!`);
-          field.onBase["1B"]!.awardExperience(10);
+          field.onBase["1B"]!.awardExperience(10, game);
           field.onBase["2B"] = field.onBase["1B"];
           field.onBase["1B"] = null;  
         } else {
           game.shouldLog("quiet") && console.log(`   ${field.onBase["1B"]!.player.lastName} was caught. Out!`);
           field.onBase["1B"] = null;
-          field.fielders.C.awardExperience(15);
+          field.fielders.C.awardExperience(15, game);
           offensiveInning.outs++;
         }
       }
@@ -155,7 +155,7 @@ export class AtBat {
       case "Ball":
         this.balls++;
         if(this.balls >= 4) {
-          console.log(`   ${this.batter.player.lastName} walks to first base.`);
+          game.shouldLog("normal") && console.log(`   ${this.batter.player.lastName} walks to first base.`);
           this.outcome = "Walk";
           field.advanceRunners("1B", this.batter, offensiveInning);
         }
@@ -166,7 +166,7 @@ export class AtBat {
           console.log(`   ${this.batter.player.lastName} strikes out!`);
           this.outcome = "Out";
           offensiveInning.outs++;
-          this.pitcher.awardExperience(5);
+          this.pitcher.awardExperience(5, game);
         }
         
         return this;
@@ -185,29 +185,25 @@ export class AtBat {
         if(achievedHit && hitQuality > 0.9) {
           game.shouldLog("quiet") && console.log(`   ${this.batter.player.lastName}! Is! Going! All! The! Way!`);
           this.outcome = "Hit";
-          offensiveInning.runs += 1 + (field.onBase["1B"] ? 1 : 0) + (field.onBase["2B"] ? 1 : 0) + (field.onBase["3B"] ? 1 : 0);
-          field.onBase["1B"] = null;
-          field.onBase["2B"] = null;
-          field.onBase["3B"] = null;
-          this.batter.awardExperience(50);
+          field.advanceRunners("C", this.batter, offensiveInning);
+          
+          this.batter.awardExperience(50, game);
           return this;
         } else if (achievedHit && hitQuality > 0.8) {
           game.shouldLog("quiet") && console.log(`   ${this.batter.player.lastName} takes a trip to third!`);
           this.outcome = "Hit";
           field.advanceRunners("3B", this.batter, offensiveInning);
-          this.batter.awardExperience(30);
+          this.batter.awardExperience(30, game);
           return this;
         } else if (achievedHit && hitQuality > 0.7) {
           game.shouldLog("quiet") && console.log(`   ${this.batter.player.lastName} pays bills with a double!`);
           this.outcome = "Hit";
           field.advanceRunners("2B", this.batter, offensiveInning);
-          this.batter.awardExperience(20);
           return this;
         } else if (achievedHit && hitQuality > 0.4) {
           game.shouldLog("quiet") && console.log(`   ${this.batter.player.lastName}: Base hit!`);
           this.outcome = "Hit";
           field.advanceRunners("1B", this.batter, offensiveInning);
-          this.batter.awardExperience(10);
           return this;
         } else {
           game.shouldLog("quiet") && console.log(`   ${this.batter.player.lastName} is thrown out!`);
