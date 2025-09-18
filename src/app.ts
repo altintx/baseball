@@ -1,3 +1,4 @@
+import { renderScoreBoardAsText } from "./components/score-board";
 import { Country } from "./entity/country";
 import { Game } from "./entity/game";
 import { Gender } from "./entity/gender";
@@ -89,6 +90,9 @@ for (const team of teams) {
 
 const game = new Game(teams[0], teams[1], new Date());
 console.log(`Simulating game between ${game.away.team.city} ${game.away.team.name} (away) and ${game.home.team.city} ${game.home.team.name} (home) on ${game.date.toDateString()}`);
+game.on("inningChange", (inning) => {
+  console.log(renderScoreBoardAsText(game));
+});
 const outcome = game.simulate();
 console.log(`Final Score: ${outcome.away.team.name} ${game.runs('away')} - ${outcome.home.team.name} ${outcome.runs('home')}`);
 console.log(`${outcome.winner?.name ?? "No one"} won!`);

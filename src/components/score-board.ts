@@ -1,0 +1,24 @@
+import { Game } from "../entity/game";
+
+export function renderScoreBoardAsText(game: Game): string {
+  const awayTeam = game.away.team;
+  const homeTeam = game.home.team;
+  const innings = game.innings.length;
+  const header = ["TEA", 1, 2, 3, 4, 5, 6, 7, 8, 9, "R", "H", "E"];
+  const awayLine: (string | number)[] = [awayTeam.abbreviation()];
+  const homeLine: (string | number)[] = [homeTeam.abbreviation()];
+  for(let inning = 0; inning < 9; inning++) {
+    const inningData = game.innings[inning];
+    awayLine.push(inningData?.outcomes?.away?.runs.toString() ?? "");
+    homeLine.push(inningData?.outcomes?.home?.runs.toString() ?? "" );
+  }
+  awayLine.push(game.runs('away'), game.hits('away'), game.errors('away'));
+  homeLine.push(game.runs('home'), game.hits('home'), game.errors('home'));
+  const lines = [
+    header.map(h => h.toString().padStart(2)).join(" | "),
+    "-".repeat(header.length * 4 - 1),
+    awayLine.map(h => h.toString().padStart(2)).join(" | "),
+    homeLine.map(h => h.toString().padStart(2)).join(" | "),
+  ];
+  return lines.join("\n");
+}
