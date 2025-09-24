@@ -185,7 +185,7 @@ export class AtBat {
         if(achievedHit && hitQuality > 0.9) {
           game.shouldLog("quiet") && console.log(`   ${this.batter.player.lastName}! Is! Going! All! The! Way!`);
           this.outcome = "Hit";
-          field.advanceRunners("C", this.batter, offensiveInning);
+          field.advanceRunners("H", this.batter, offensiveInning);
           
           this.batter.awardExperience(50, game);
           return this;

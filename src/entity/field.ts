@@ -1,4 +1,5 @@
 import { AtBat } from "./at-bat";
+import { Base } from "./base";
 import { Game } from "./game";
 import { Outcome } from "./inning";
 import { PlayerPosition } from "./player-position";
@@ -6,12 +7,7 @@ import { TeamPlayer } from "./team-player";
 
 export class Field {
   fielders: Record<PlayerPosition, TeamPlayer>;
-  onBase: {
-    "1B": TeamPlayer | null;
-    "2B": TeamPlayer | null;
-    "3B": TeamPlayer | null;
-    "H": TeamPlayer | null;
-  };
+  onBase: Record<Base, TeamPlayer | null>;
   game: Game;
 
   constructor(defense: Record<PlayerPosition, TeamPlayer>, game: Game) {
@@ -30,7 +26,7 @@ export class Field {
     return new AtBat(batter, pitcher);
   }
 
-  advanceRunners(batterMovesToBase: PlayerPosition, batter: TeamPlayer, inning: Outcome) {
+  advanceRunners(batterMovesToBase: Base, batter: TeamPlayer, inning: Outcome) {
     const forcedMovements = batterMovesToBase === "1B" ? 1 : batterMovesToBase === "2B" ? 2 : batterMovesToBase === "3B" ? 3 : 4;
     for(let i = 3; i >= 0; i--) {
       const base = i === 0 ? "H" : i === 1 ? "1B" : i === 2 ? "2B" : "3B";
