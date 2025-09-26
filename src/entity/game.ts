@@ -7,6 +7,7 @@ import { GameTeam } from "./game-team";
 import { Player } from "./player";
 import { Pitch } from "./pitch";
 import { Observable } from "./observable";
+import { LogLevel, LogLevels } from "../logging/level";
 
 export class Game extends Observable{
   home: GameTeam;
@@ -18,11 +19,10 @@ export class Game extends Observable{
     home: number;
     away: number;
   };
-  logLevel: "debug" | "verbose" | "normal" | "quiet" = "quiet";
+  logLevel: LogLevel = "quiet";
 
-  shouldLog(level: "debug" | "verbose" | "normal" | "quiet"): boolean {
-    const levels = ["quiet", "normal", "verbose", "debug"];
-    return levels.indexOf(level) <= levels.indexOf(this.logLevel);
+  shouldLog(level: LogLevel): boolean {
+    return LogLevels.indexOf(level) <= LogLevels.indexOf(this.logLevel);
   }
   
   constructor(hometeam: Team, awayteam: Team, date: Date) {
