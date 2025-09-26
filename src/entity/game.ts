@@ -65,7 +65,7 @@ export class Game {
         const atBats: AtBat[] = [];
         while (outcome.outs < 3) {
           const batter = offense.lineUp.positions[offense.lineUp.battingOrder[this.positionInLineup[team] % 9]];
-          const atBat = field.atBat(batter, defense.lineUp.positions["P"]);
+          const atBat = field.atBat(batter, defense.lineUp.positions["P"], field);
           this.shouldLog("quiet") && console.log("atBat", atBat.batter.player.lastName, "vs", atBat.pitcher.player.lastName);
           do {
             const pitcherEnergy = atBat.pitcher.player.energy(this);
@@ -81,7 +81,7 @@ export class Game {
               this.winner = offense.team;
               break;
             }
-            const result = atBat.simulate(field, this, currentInning);
+            const result = atBat.simulate(this, currentInning);
             this.shouldLog("normal") && console.log(`  Pitch result: Balls: ${result.balls}, Strikes: ${result.strikes}`);
           } while (atBat.outcome === null);
           this.positionInLineup[team]++;

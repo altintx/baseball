@@ -63,7 +63,7 @@ new Team({
 console.log(teams);
 for (const team of teams) {
   for (let i = 0; i < 25; i++) {
-    const player = Player.generateRandomly()
+    const player = Player.generate(i / 25, "USA", "male")
     const teamPlayer = new TeamPlayer({
       player,
       number: i + 1,

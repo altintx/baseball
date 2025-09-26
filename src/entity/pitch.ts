@@ -10,6 +10,7 @@ export class Pitch {
   speed: number; // in mph
   spinRate: number; // in rpm
   type: PitchType;
+  inStrikeZone: boolean | null = null;
 
   constructor(game: Game, pitcher: Player, batter: Player, speed: number, spinRate: number, type: PitchType) {
     this.game = game;
@@ -20,44 +21,26 @@ export class Pitch {
     this.type = type;
   }
 
-  simulate(): { type: "Ball" | "Strike" | "Foul" | "InPlay", location: "InZone" | "OutOfZone" } {
-    // Determine if pitch is a ball or strike based on pitcher's accuracy and batter's eye
-    const pitcherAccuracy = (this.pitcher.playerAttributes().Dexterity * 0.5 + this.pitcher.playerAttributes().Intelligence * 0.5) / 200;
-    const batterEye = (this.batter.playerAttributes().Intelligence * 0.7 + this.batter.playerAttributes().Dexterity * 0.3) / 200;
-    const strikeZoneChance = pitcherAccuracy - batterEye + 0.5; // base 50% chance of being in strike zone
-    const isInZone = Math.random() < strikeZoneChance;
-
-    if(isInZone) {
-      // In strike zone, determine if batter swings and if it's a hit or miss
-      const batterContact = (this.batter.playerAttributes().Dexterity * 0.6 + this.batter.playerAttributes().Strength * 0.4) / 200;
-      const swingChance = batterContact + 0.3; // base 30% chance of swinging at strike
-      if(Math.random() < swingChance) {
-        // Batter swings, determine if it's a hit or miss
-        const hitChance = batterContact - (this.pitcher.playerAttributes().Dexterity * 0.4 + this.pitcher.playerAttributes().Intelligence * 0.6) / 200 + 0.3; // base 30% chance of hit
-        if(Math.random() < hitChance) {
-          return { type: "InPlay", location: "InZone" }; // Hit
-        } else {
-          return { type: "Strike", location: "InZone" }; // Swing and miss
-        }
-      } else {
-        return { type: "Strike", location: "InZone" }; // Called strike
-      }
-    } else {
-      // Out of strike zone, determine if batter swings
-      const batterDiscipline = (this.batter.playerAttributes().Intelligence * 0.6 + this.batter.playerAttributes().Dexterity * 0.4) / 200;
-      const swingChance = 0.2 - batterDiscipline; // base 20% chance of swinging at ball
-      if(Math.random() < swingChance) {
-        // Batter swings, determine if it's a hit or miss
-        const hitChance = (this.batter.playerAttributes().Dexterity * 0.5 + this.batter.playerAttributes().Strength * 0.5) / 200 - (this.pitcher.playerAttributes().Dexterity * 0.4 + this.pitcher.playerAttributes().Intelligence * 0.6) / 200 + 0.2; // base 20% chance of hit
-        if(Math.random() < hitChance) {
-          return { type: "InPlay", location: "OutOfZone" }; // Hit
-        } else {
-          return { type: "Foul", location: "OutOfZone" }; // Foul ball
-        }
-      } else {
-        return { type: "Ball", location: "OutOfZone" }; // Called ball
-      }
+  difficultyBuff(): number {
+    switch(this.type) {
+      case"Changeup": return 2;
+      case"Curveball": return 1;
+      case"Cutter": return 0;
+      case"Fastball": return 0;
+      case"Sinker": return -1;
+      case"Slider": return -1;
+      case"Knuckleball": return -2;
+      default: return 0;
     }
+  }
+
+  simulate(): "InZone" | "OutOfZone" {
+    const pitcherConstitutionRoll = this.pitcher.roll("Constitution", 4)
+    const pitcherBuff = pitcherConstitutionRoll === 4 ? 1: pitcherConstitutionRoll === 1 ? -1 : 0;
+    const pitchDifficultBuff = this.difficultyBuff();
+    const pitcherDexterityRoll = this.pitcher.roll("Dexterity", 20) + pitcherBuff + pitchDifficultBuff;
+    this.inStrikeZone = pitcherDexterityRoll > 12;
+    return this.inStrikeZone ? "InZone" : "OutOfZone";
   }
 
   static randomPitch(pitcher: Player, batter: Player, game: Game): Pitch {

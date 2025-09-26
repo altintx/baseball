@@ -11,6 +11,9 @@ import { Countries, Country } from "./country";
 import { Gender, Genders } from "./gender";
 import { Dexterity } from "./dexterity";
 import { Game } from "./game";
+import { AtBat } from "./at-bat";
+import { Inning } from "./inning";
+import { Pitch } from "./pitch";
 
 type NameEntry = { name: string; weight: number };
 type CountryData = {
@@ -30,9 +33,10 @@ const namesByCountry: Record<Country, CountryData> = {
   Cuba: cuba,
 };
 
-function weightedChoice(arr: NameEntry[]): string {
+function weightedChoice(arr: NameEntry[], temperature: number): string {
+  if(temperature >= 1 || temperature < 0) throw new Error(`Temperature must be between 0 and 1`);
   const total = arr.reduce((acc, e) => acc + e.weight, 0);
-  let r = Math.random() * total;
+  let r = temperature * total;
   for (const e of arr) {
     if (r < e.weight) return e.name;
     r -= e.weight;
@@ -42,19 +46,21 @@ function weightedChoice(arr: NameEntry[]): string {
 
 export function generateFirstName(
   country: Country,
-  gender: Gender
+  gender: Gender,
+  temperature: number
 ): string {
+    if(temperature >= 1 || temperature < 0) throw new Error(`Temperature must be between 0 and 1`);
   const data = namesByCountry[country];
   if (!data) throw new Error(`Unsupported country: ${country}`);
   // ~25% chance of neutral substitution
-  if (Math.random() < 0.25 && data.neutral.length > 0) {
-    return weightedChoice(data.neutral);
+  if (temperature < 0.25 && data.neutral.length > 0) {
+    return weightedChoice(data.neutral, temperature);
   }
-  return weightedChoice(data[gender]);
+  return weightedChoice(data[gender], temperature);
 }
 
-export function generateLastName(country: Country): string {
-  return weightedChoice(namesByCountry[country].last);
+export function generateLastName(country: Country, temperature: number): string {
+  return weightedChoice(namesByCountry[country].last, temperature);
 }
 
 
@@ -90,20 +96,19 @@ export class Player {
     return this.dexterity === "Right" ? (format === "brief" ? "R" : "Right") : (format === "brief" ? "L" : "Left");
   }
   
-  static generateRandomly<TCountry extends Country, TGender extends Gender>(
-    country?: TCountry,
-    gender?: TGender
+  static generate<TCountry extends Country, TGender extends Gender>(
+    temperature: number,
+    country: TCountry,
+    gender: TGender
   ): Player {
-    const countryChoice = country ?? (Countries[(Countries.length * Math.random()) | 0] as TCountry);
-    const genderChoice = gender ?? (Genders[(Genders.length * Math.random()) | 0] as TGender);
-    const dexterity = (Math.random() < 0.05 ? "Ambidextrous" as const: Math.random() < 0.6 ? "Right" as const : "Left" as const);
+    const dexterity = (temperature < 0.05 ? "Ambidextrous" as const: Math.random() < 0.6 ? "Right" as const : "Left" as const);
     const attributes: PlayerAttributePoint[] = [];
     for(let type of PlayerAttributeBuckets) {
       attributes.push(new PlayerAttributePoint({ type, value: Player.defaultAttributeValue }));
     }
     const playerAttributes = {
-      firstName: generateFirstName(countryChoice, genderChoice),
-      lastName: generateLastName(countryChoice),
+      firstName: generateFirstName(country, gender, temperature),
+      lastName: generateLastName(country, temperature),
       gender,
       country,
       attributes,
@@ -150,5 +155,73 @@ export class Player {
     const buff = this.playerAttributes()[attribute] - 8;
     const random = 1 + Math.floor(Math.random() * dice);
     return Math.min(dice, buff + random);
+  }
+
+  willTryToSteal(context: { atBat: AtBat, inning: Inning; scoreDifference: number; me: TeamPlayer }): boolean {
+    if(context.inning.offensive().outs === 2) return false; // silly to steal with no outs to burn
+    const myBase = Object.entries(context.atBat.field.onBase).find(([base, player]) => player === context.me)?.[0];
+    if(!myBase) return false; // I'm not on base, so I can't steal
+    if(myBase === "3B") return false; // no reason to steal home (for now)
+    const nextBase = myBase === "1B" ? "2B" : "3B";
+    if(context.atBat.field.onBase[nextBase]) return false; // next base is occupied, can't steal 
+    if(context.scoreDifference < -3) return false; // losing by a lot, no reason to steal
+    if(context.scoreDifference > 3) return true; // winning by a lot, steal to add insurance
+    if(context.inning.number >= 8 && context.scoreDifference > 0) return true; // late in the game and winning, steal to add insurance
+    if(context.inning.number >= 8 && context.scoreDifference < 0) return false; // late in the game and losing, no reason to steal
+    const shouldTry = context.me.player.roll("Dexterity", 20) > 15;
+    if (shouldTry) {
+      const pitcherPickOff = context.atBat.pitcher.player.roll("Intelligence", 20);
+      const catcherThrow = context.atBat.field.fielders.C.player.roll("Dexterity", 20);
+      return context.me.player.roll("Dexterity", 20) + 2 > (pitcherPickOff + catcherThrow);
+    }
+    return false; // default to not stealing
+  }
+  willTryToBunt(context: { atBat: AtBat, inning: Inning, scoreDifference: number; pitcher: Player; catcher: Player; }): boolean {
+    if(context.inning.offensive().outs === 2) return false; // silly to bat with no outs to burn 
+    const playersOnBase = Object.entries(context.atBat.field.onBase).reduce((acc, [base, player]) => player ? acc + 1 : acc, 0);
+    if(playersOnBase === 0) return false; // no one on base, no reason to bunt
+    if(context.scoreDifference < -3) return false; // losing by a lot, no reason to bunt
+    if(context.scoreDifference > 3) return true; // winning by a lot, bunt to waste an out
+    if(context.inning.number >= 8 && context.scoreDifference > 0) return true; // late in the game and winning, bunt to waste an out
+    if(context.inning.number >= 8 && context.scoreDifference < 0) return false; // late in the game and losing, no reason to bunt
+    if(context.inning.offensive().outs === 1 && playersOnBase === 2) return true; // one out and two on, good chance to move them up
+    if(context.inning.offensive().outs === 1 && playersOnBase === 1) {
+      const baseOccupied = Object.entries(context.atBat.field.onBase).find(([base, player]) => player)?.[0];
+      if(baseOccupied === "3B") return false; // no reason to bunt with only 3rd base occupied
+      return true; // good chance to move them up
+    }
+    if(context.inning.offensive().outs === 0 && playersOnBase === 2) {
+      const basesOccupied = Object.entries(context.atBat.field.onBase).filter(([base, player]) => player).map(([base, player]) => base);
+      if(basesOccupied.includes("2B") && basesOccupied.includes("3B")) return false; // no reason to bunt with 2nd and 3rd occupied
+      return true; // good chance to move them up
+    }
+    if(context.inning.offensive().outs === 0 && playersOnBase === 1) {
+      const baseOccupied = Object.entries(context.atBat.field.onBase).find(([base, player]) => player)?.[0];
+      if(baseOccupied === "3B") return false; // no reason to bunt with only 3rd base occupied
+      return true; // good chance to move them up
+    }
+    return false; // default to not bunting
+  }
+
+  will(action: "swing" | "take" | "bunt" | "steal" | "catch" | "check" | "tag" | "force" | "throw", context: { game: Game, atBat: AtBat, inning: Inning; me: TeamPlayer; pitcher: Player; catcher: Player, pitch: Pitch | null }): boolean {
+    switch(action) {
+      case "swing": {
+        const intelligenceCheck = this.roll("Intelligence", 20) > 12;
+        if(intelligenceCheck) {
+          const pitch = context.pitch;
+          if(!pitch) return false; // no pitch, can't swing
+          if(pitch.inStrikeZone) {
+            return true; // good pitch, swing
+          } else {
+            const dexterityCheck = this.roll("Dexterity", 20) > 12;
+            return !dexterityCheck; // bad pitch, swing only if not very dexterous
+          }
+        } else {
+
+        }
+        // chance to swing is based on dexterity and intelligence
+      }
+    }
+    return false;
   }
 }

@@ -11,20 +11,23 @@ export class AtBat {
   pitcher: TeamPlayer
   outcome: AtBatOutcome | null;
   pitches: Pitch[];
+  field: Field;
 
   balls: number;
   strikes: number;
 
-  constructor(batter: TeamPlayer, pitcher: TeamPlayer, balls?: number, strikes?: number) {
-    this.batter = batter;
-    this.pitcher = pitcher;
+  constructor(p: { batter: TeamPlayer, pitcher: TeamPlayer, balls: number, strikes: number, field: Field }) {
+    this.batter = p.batter;
+    this.pitcher = p.pitcher;
     this.outcome = null;
     this.pitches = [];
-    this.balls = balls ?? 0;
-    this.strikes = strikes ?? 0;
+    this.balls = p.balls ?? 0;
+    this.strikes = p.strikes ?? 0;
+    this.field = p.field;
   }
 
-  simulate(field: Field, game: Game, inning: Inning): AtBat {
+  simulate(game: Game, inning: Inning): AtBat {
+    const field = this.field;
     // what can happen? 
     // a player on base may try to steal a base
     // a pitcher may throw to a base to try to pick off a runner
@@ -150,9 +153,11 @@ export class AtBat {
     this.pitches.push(pitch);
     game.shouldLog("normal") && console.log(`  ${this.pitcher.player.lastName} pitches to ${this.batter.player.lastName}`);
     const pitchResult = pitch.simulate();
-    game.shouldLog("debug") && console.log(`   Pitch result: ${pitchResult.type}, ${pitchResult.location}`);
-    switch (pitchResult.type) {
-      case "Ball":
+    game.shouldLog("debug") && console.log(`   Pitch accuracy ${pitchResult}`);
+    const batterSwings = this.batter.player.will("swing", { game, atBat: this, inning, me: this.batter, pitcher: this.pitcher.player, catcher: field.fielders.C.player, pitch });
+        
+    switch (true) {
+      case pitchResult === "OutOfZone" && !batterSwings:
         this.balls++;
         if(this.balls >= 4) {
           game.shouldLog("normal") && console.log(`   ${this.batter.player.lastName} walks to first base.`);
@@ -160,7 +165,7 @@ export class AtBat {
           field.advanceRunners("1B", this.batter, offensiveInning);
         }
         return this;
-      case "Strike":
+      case pitchResult === "InZone" && !batterSwings:
         this.strikes++;
         if(this.strikes >= 3) {
           console.log(`   ${this.batter.player.lastName} strikes out!`);
@@ -170,16 +175,11 @@ export class AtBat {
         }
         
         return this;
-      case "Foul":
-        if(this.strikes < 2) {
-          this.strikes++;
-        }
-        return this;
-      case "InPlay":
+      case batterSwings:
         // Determine if it's a hit or an out
         const batterContact = (this.batter.player.playerAttributes().Dexterity * 0.6 + this.batter.player.playerAttributes().Strength * 0.4) / 200;
         const pitcherDefense = (this.pitcher.player.playerAttributes().Dexterity * 0.4 + this.pitcher.player.playerAttributes().Intelligence * 0.6) / 200;
-        const hitChance = batterContact - pitcherDefense + 0.3; // base 30% chance of hit
+        const hitChance = batterContact - pitcherDefense + 0.3 + pitchResult === "InZone" ? 0.1 : -0.1; // base 30% chance of hit, buffed by 10% inzone or -10% out of zone
         const hitQuality = Math.random() + (this.batter.player.playerAttributes().Strength * 0.5 + this.batter.player.playerAttributes().Dexterity * 0.5) / 200;
         const achievedHit = Math.random() < hitChance;
         if(achievedHit && hitQuality > 0.9) {
@@ -188,29 +188,25 @@ export class AtBat {
           field.advanceRunners("H", this.batter, offensiveInning);
           
           this.batter.awardExperience(50, game);
-          return this;
         } else if (achievedHit && hitQuality > 0.8) {
           game.shouldLog("quiet") && console.log(`   ${this.batter.player.lastName} takes a trip to third!`);
           this.outcome = "Hit";
           field.advanceRunners("3B", this.batter, offensiveInning);
-          this.batter.awardExperience(30, game);
-          return this;
         } else if (achievedHit && hitQuality > 0.7) {
           game.shouldLog("quiet") && console.log(`   ${this.batter.player.lastName} pays bills with a double!`);
           this.outcome = "Hit";
           field.advanceRunners("2B", this.batter, offensiveInning);
-          return this;
         } else if (achievedHit && hitQuality > 0.4) {
           game.shouldLog("quiet") && console.log(`   ${this.batter.player.lastName}: Base hit!`);
           this.outcome = "Hit";
           field.advanceRunners("1B", this.batter, offensiveInning);
-          return this;
         } else {
           game.shouldLog("quiet") && console.log(`   ${this.batter.player.lastName} is thrown out!`);
           this.outcome = "Out";
           offensiveInning.outs++;
-          return this;
         }
+        return this;
     }
+    return this;
   }
 }
