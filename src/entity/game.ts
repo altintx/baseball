@@ -8,6 +8,7 @@ import { Player } from "./player";
 import { Pitch } from "./pitch";
 import { Observable } from "./observable";
 import { LogLevel, LogLevels } from "../logging/level";
+import { Logger } from "../logging/logger";
 
 export class Game extends Observable{
   home: GameTeam;
@@ -19,13 +20,9 @@ export class Game extends Observable{
     home: number;
     away: number;
   };
-  logLevel: LogLevel = "quiet";
-
-  shouldLog(level: LogLevel): boolean {
-    return LogLevels.indexOf(level) <= LogLevels.indexOf(this.logLevel);
-  }
+  logger: Logger;
   
-  constructor(hometeam: Team, awayteam: Team, date: Date) {
+  constructor(hometeam: Team, awayteam: Team, date: Date, logLevel: LogLevel = "quiet") {
     super();
     const homeStartingPitcher = hometeam.bestPitcher();
     const awayStartingPitcher = awayteam.bestPitcher();
@@ -40,6 +37,7 @@ export class Game extends Observable{
       home: 0,
       away: 0,
     }
+    this.logger = new Logger(logLevel);
   }
 
   winnerTeam(context: { inning: number; inningState: "Top" | "Bottom", outs: number }): Team | null {
@@ -64,39 +62,39 @@ export class Game extends Observable{
         const currentInning = this.innings[this.innings.length - 1];
         currentInning.state = team === "away" ? "Top" : "Bottom";
         if(team === null) break;
-        this.shouldLog("quiet") && console.log(`${currentInning.state} of the ${inning}th`);
+        this.logger.log("quiet", `${currentInning.state} of the ${inning}th`);
         const offense = team === "away" ? this.away : this.home;
         const defense = team === "away" ? this.home : this.away;
-        this.shouldLog("quiet") && console.log(`  ${offense.team.city} ${offense.team.name} is batting`);
+        this.logger.log("quiet", `  ${offense.team.city} ${offense.team.name} is batting`);
         const outcome = currentInning.offensive();
         const field = new Field(defense.lineUp.positions, this)
         const atBats: AtBat[] = [];
         while (outcome.outs < 3) {
           const batter = offense.lineUp.positions[offense.lineUp.battingOrder[this.positionInLineup[team] % 9]];
           const atBat = field.atBat(batter, defense.lineUp.positions["P"], field);
-          this.shouldLog("quiet") && console.log("atBat", atBat.batter.player.lastName, "vs", atBat.pitcher.player.lastName);
+          this.logger.log("quiet", "atBat", atBat.batter.player.lastName, "vs", atBat.pitcher.player.lastName);
           do {
             const pitcherEnergy = atBat.pitcher.player.energy(this);
             if(pitcherEnergy < 80 && bullpens[team].length > 0) {
-              this.shouldLog("verbose") && console.log(`  ${atBat.pitcher.player.lastName} is getting tired (energy ${pitcherEnergy}). Bringing in a reliever.`);
+              this.logger.log("verbose", `  ${atBat.pitcher.player.lastName} is getting tired (energy ${pitcherEnergy}). Bringing in a reliever.`);
               const newPitcher = bullpens[team].shift()!;
-              this.shouldLog("quiet") && console.log(`  ${newPitcher.player.lastName} is now pitching.`);
+              this.logger.log("quiet", `  ${newPitcher.player.lastName} is now pitching.`);
               defense.lineUp.positions["P"] = newPitcher;
               atBat.pitcher = newPitcher;
             } else if (pitcherEnergy < 50) {
-              this.shouldLog("quiet") && console.log(`  Pitcher is exhausted and no ${defense.team.name} relievers are available. Giving up the game.`);
+              this.logger.log("quiet", `  Pitcher is exhausted and no ${defense.team.name} relievers are available. Giving up the game.`);
               outcome.outs = 3;
               this.winner = offense.team;
               break;
             }
             const result = atBat.simulate(this, currentInning);
             this.winner = this.winner ?? this.winnerTeam({ inning, inningState: currentInning.state, outs: outcome.outs });
-            this.shouldLog("normal") && console.log(`  Pitch result: Balls: ${result.balls}, Strikes: ${result.strikes}`);
+            this.logger.log("normal",`  Pitch result: Balls: ${result.balls}, Strikes: ${result.strikes}`);
           } while (atBat.outcome === null);
           this.positionInLineup[team]++;
           atBats.push(atBat);
         }
-        this.shouldLog("debug") && console.log(`End of ${currentInning.state} of the ${inning}th: ${this[team].team.name}'s pitcher ${this[team].lineUp.positions.P.player.lastName} has energy ${this[team].lineUp.positions.P.player.energy(this)}.`);
+        this.logger.log("debug", `End of ${currentInning.state} of the ${inning}th: ${this[team].team.name}'s pitcher ${this[team].lineUp.positions.P.player.lastName} has energy ${this[team].lineUp.positions.P.player.energy(this)}.`);
         this.winner = this.winner ?? this.winnerTeam({ inning, inningState: currentInning.state, outs: outcome.outs });
       }
     }

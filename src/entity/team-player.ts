@@ -24,7 +24,7 @@ export class TeamPlayer {
   }
 
   awardExperience(amount: number, game: Game) {
-    game.shouldLog("debug") && console.log(`   ${this.player.lastName} gains ${amount} experience points.`);
+    game.logger.log("debug",`   ${this.player.lastName} gains ${amount} experience points.`);
     this.player.experience += amount;
   }
 }

@@ -34,12 +34,12 @@ export class Field {
       const nextBase = i + 1 === 1 ? "1B" : i + 1 === 2 ? "2B" : i + 1 === 3 ? "3B" : "H";
       if(this.onBase[base] && (i < forcedMovements || this.onBase[nextBase])) {
         if(nextBase === "H") {
-          this.game.shouldLog("debug") && console.log(`    ${this.onBase[base]!.player.lastName} scores!`);
+          this.game.logger.log("debug",`    ${this.onBase[base]!.player.lastName} scores!`);
           this.onBase[base]!.awardExperience(10, this.game);
           this.onBase[base] = null;
           inning.runs++;
         } else {
-          this.game.shouldLog("debug") && console.log(`    ${this.onBase[base]!.player.lastName} advances to ${nextBase}`);
+          this.game.logger.log("debug",`    ${this.onBase[base]!.player.lastName} advances to ${nextBase}`);
           this.onBase[nextBase] = this.onBase[base];
           this.onBase[base] = null;
           this.onBase[nextBase]!.awardExperience(5, this.game);
