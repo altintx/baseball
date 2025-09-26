@@ -43,12 +43,21 @@ export class Game {
     }
   }
 
+  winnerTeam(context: { inning: number; inningState: "Top" | "Bottom", outs: number }): Team | null {
+    if(this.innings.length >= 9 && this.runs('home') > this.runs('away')) {
+      return this.home.team;
+    } else if(context.inning > 9 && context.inningState === "Bottom" && this.runs('away') > this.runs('home')) {
+      return this.away.team;
+    }
+    return null;
+  }
+
   simulate(): Game {
     const bullpens = {
       home: this.home.team.players.filter(p => p.position === "P" && p !== this.home.lineUp.positions["P"]),
       away: this.away.team.players.filter(p => p.position === "P" && p !== this.away.lineUp.positions["P"]),
     }
-    for(let inning = 1; inning <= 9; inning++) {
+    for(let inning = 1; !this.winner || inning <= 9; inning++) {
       if(this.winner) break;
       this.innings.push(new Inning(inning));
       for(let team: "home" | "away" | null = "away"; team !== null && !this.winner; team = team === "away" ? "home" : null) {
@@ -82,20 +91,15 @@ export class Game {
               break;
             }
             const result = atBat.simulate(this, currentInning);
+            this.winner = this.winner ?? this.winnerTeam({ inning, inningState: currentInning.state, outs: outcome.outs });
             this.shouldLog("normal") && console.log(`  Pitch result: Balls: ${result.balls}, Strikes: ${result.strikes}`);
           } while (atBat.outcome === null);
           this.positionInLineup[team]++;
           atBats.push(atBat);
         }
         this.shouldLog("debug") && console.log(`End of ${currentInning.state} of the ${inning}th: ${this[team].team.name}'s pitcher ${this[team].lineUp.positions.P.player.lastName} has energy ${this[team].lineUp.positions.P.player.energy(this)}.`);
+        this.winner = this.winner ?? this.winnerTeam({ inning, inningState: currentInning.state, outs: outcome.outs });
       }
-    }
-    if(!this.winner)
-      this.runs('home') > this.runs('away') ? this.winner = this.home.team : this.runs('away') > this.runs('home') ? this.winner = this.away.team : null;
-    if(!this.winner) {
-      this.shouldLog("quiet") && console.log("The game is tied after 9 innings. Extra innings are not yet implemented.");
-      this.shouldLog("quiet") && console.log("Home team wins!");
-      this.winner = this.home.team;
     }
     return this;
   }
