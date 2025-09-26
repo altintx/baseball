@@ -1,15 +1,14 @@
-import { off } from "process";
 import { AtBat } from "./at-bat";
 import { Inning } from "./inning";
 import { Team } from "./team";
-import { TeamPlayer } from "./team-player";
 import { Lineup } from "./lineup";
 import { Field } from "./field";
 import { GameTeam } from "./game-team";
 import { Player } from "./player";
 import { Pitch } from "./pitch";
+import { Observable } from "./observable";
 
-export class Game {
+export class Game extends Observable{
   home: GameTeam;
   away: GameTeam;
   date: Date;
@@ -19,7 +18,6 @@ export class Game {
     home: number;
     away: number;
   };
-  listeners: Record<string, ((...args: any[]) => unknown)[]> = {};
   logLevel: "debug" | "verbose" | "normal" | "quiet" = "quiet";
 
   shouldLog(level: "debug" | "verbose" | "normal" | "quiet"): boolean {
@@ -28,6 +26,7 @@ export class Game {
   }
   
   constructor(hometeam: Team, awayteam: Team, date: Date) {
+    super();
     const homeStartingPitcher = hometeam.bestPitcher();
     const awayStartingPitcher = awayteam.bestPitcher();
     const homeLineUp = new Lineup(hometeam, homeStartingPitcher, true);
@@ -126,22 +125,5 @@ export class Game {
 
   pitches(pitcher: Player): Pitch[] {
     return this.atBats(pitcher).flatMap(ab => ab.pitches);
-  }
-
-  on(event: string, listener: (...args: any[]) => void) {
-    if(!this.listeners[event]) this.listeners[event] = [];
-    this.listeners[event].push(listener);
-  }
-
-  off(event: string, listener: (...args: any[]) => void) {
-    if(!this.listeners[event]) return;
-    this.listeners[event] = this.listeners[event].filter(l => l !== listener);
-  }
-
-  emit(event: string, ...args: any[]) {
-    if(!this.listeners[event]) return;
-    for(const listener of this.listeners[event]) {
-      listener(...args);
-    }
   }
 }
