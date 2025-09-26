@@ -62,38 +62,44 @@ export class Pitch {
 
   static randomPitch(pitcher: Player, batter: Player, game: Game): Pitch {
     // Determine pitch type based on pitcher attributes, the pitcher's remaining energy, and the matchup between pitcher and batter's dexterity
-    const e = pitcher.energy(game);
-    const randomPitchIndex = Math.floor(Math.random() * PitchTypes.length);
+    const pitcherEnergy = pitcher.energy(game);
+    const [str, dex, wis] = [
+      pitcher.roll("Strength", 20),
+      pitcher.roll("Dexterity", 20),
+      pitcher.roll("Wisdom", 20),
+    ];
+    const pitch = Math.min(str, dex, wis);
+    const randomPitchIndex = Math.floor((pitch / 20) * PitchTypes.length);
     // if pitcher has energy and batter+pitcher have same dexterity, more likely to throw fastball
     // if pitcher has low energy but they have same dexterity, more likely to throw offspeed
     // if pitcher has energy and they have different dexterity, more likely to throw a tricky pitch
     // if pitcher has low energy and they have different dexterity, more likely to throw fastball slowly (to benefit batter)
     const sameDexterity = pitcher.dexterity === batter.dexterity;
-    const hasEnergy = Math.random() < e / 100;
+    const hasEnergy = pitcherEnergy > 75;
     if(sameDexterity && hasEnergy) {
-      if(Math.random() < 0.7) {
-        return new Pitch(game, pitcher, batter, 90 + Math.random() * 10, 2000 + Math.random() * 1000, "Fastball");
+      if(wis > 15) {
+        return new Pitch(game, pitcher, batter, 90 + pitcher.roll('Strength', 20), 2000 + Math.random() * 1000, "Fastball");
       } else {
-        return new Pitch(game, pitcher, batter, 70 + Math.random() * 20, 1000 + Math.random() * 2000, PitchTypes[randomPitchIndex]);
+        return new Pitch(game, pitcher, batter, 70 + pitcher.roll('Strength', 12), 1000 + Math.random() * 2000, PitchTypes[randomPitchIndex]);
       }
     } else if(sameDexterity && !hasEnergy) {
-      if(Math.random() < 0.3) {
-        return new Pitch(game, pitcher, batter, 80 + Math.random() * 10, 1500 + Math.random() * 1000, "Fastball");
+      if(str > 15) {
+        return new Pitch(game, pitcher, batter, 80 + pitcher.roll('Strength', 12), 1500 + Math.random() * 1000, "Fastball");
       } else {
-        return new Pitch(game, pitcher, batter, 60 + Math.random() * 20, 1000 + Math.random() * 2000, PitchTypes[randomPitchIndex]);
+        return new Pitch(game, pitcher, batter, 60 + pitcher.roll('Strength', 20), 1000 + Math.random() * 2000, PitchTypes[randomPitchIndex]);
       }
     } else if(!sameDexterity && hasEnergy) {
-      if(Math.random() < 0.4) {
-        return new Pitch(game, pitcher, batter, 90 + Math.random() * 10, 2000 + Math.random() * 1000, "Fastball");
+      if(wis > 12) {
+        return new Pitch(game, pitcher, batter, 90 + pitcher.roll('Strength', 12), 2000 + Math.random() * 1000, "Fastball");
       } else {
-        return new Pitch(game, pitcher, batter, 70 + Math.random() * 20, 1000 + Math.random() * 2000, PitchTypes[randomPitchIndex]);
+        return new Pitch(game, pitcher, batter, 70 + pitcher.roll('Strength', 8), 1000 + Math.random() * 2000, PitchTypes[randomPitchIndex]);
       }
     }
     else { // !sameDexterity && !hasEnergy
-      if(Math.random() < 0.6) {
-        return new Pitch(game, pitcher, batter, 75 + Math.random() * 10, 1500 + Math.random() * 1000, "Fastball");
+      if(dex > 15) {
+        return new Pitch(game, pitcher, batter, 75 + pitcher.roll('Strength', 8), 1500 + Math.random() * 1000, "Fastball");
       } else {
-        return new Pitch(game, pitcher, batter, 60 + Math.random() * 20, 1000 + Math.random() * 2000, PitchTypes[randomPitchIndex]);
+        return new Pitch(game, pitcher, batter, 60 + pitcher.roll('Strength', 12), 1000 + Math.random() * 2000, PitchTypes[randomPitchIndex]);
       }
     }
   }

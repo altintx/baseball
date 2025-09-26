@@ -70,6 +70,8 @@ export class Player {
   hp: number;
   experience: number;
 
+  static defaultAttributeValue = 9;
+
   constructor(attributes: { firstName: string, lastName: string, attributes: PlayerAttributePoint[], country?: Country, gender?: Gender, dexterity?: Dexterity }) {
     this.firstName = attributes.firstName;
     this.lastName = attributes.lastName;
@@ -97,7 +99,7 @@ export class Player {
     const dexterity = (Math.random() < 0.05 ? "Ambidextrous" as const: Math.random() < 0.6 ? "Right" as const : "Left" as const);
     const attributes: PlayerAttributePoint[] = [];
     for(let type of PlayerAttributeBuckets) {
-      attributes.push(new PlayerAttributePoint({ type, value: 9 }));
+      attributes.push(new PlayerAttributePoint({ type, value: Player.defaultAttributeValue }));
     }
     const playerAttributes = {
       firstName: generateFirstName(countryChoice, genderChoice),
@@ -142,5 +144,11 @@ export class Player {
       const pitches = game.pitches(this).length;
       return 75 - pitches + Constitution * 2;
     }
+  }
+
+  roll(attribute: PlayerAttributeBucket, dice: 4 | 6 | 8 | 12 | 20): number {
+    const buff = this.playerAttributes()[attribute] - 8;
+    const random = 1 + Math.floor(Math.random() * dice);
+    return Math.min(dice, buff + random);
   }
 }
