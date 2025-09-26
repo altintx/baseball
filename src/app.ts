@@ -73,7 +73,7 @@ for (const team of teams) {
     team.players.push(teamPlayer);
     let availablePoints = 13;
     while (availablePoints > 0) {
-      const value = 3 - (Math.random() * 2) | 0;
+      const value = Math.random() > 0.2 ? 1: -1;
       const type = PlayerAttributeBuckets[(PlayerAttributeBuckets.length * Math.random()) | 0];
       const attribute = new PlayerAttributePoint({ type, value });
       // Assign attribute to player
