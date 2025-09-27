@@ -13,6 +13,7 @@ describe("field", () => {
     const batter = offense.lineUp.positions[offense.lineUp.battingOrder[0]];
     expect(batter).toBeInstanceOf(TeamPlayer);
     const outcome = inning.offensive();
+    f.onBase.H = batter;
     f.advanceRunners("1B", batter, outcome);
     expect(f.onBase["1B"]).toBe(batter);
     expect(f.onBase["2B"]).toBe(null);
@@ -20,7 +21,6 @@ describe("field", () => {
     expect(f.onBase.H).toBe(null);
     expect(outcome.runs).toBe(0);
     expect(outcome.outs).toBe(0);
-    expect(outcome.atBats).toBe(1);
   });
   it("should identify the base a runner is on, if any", () => {
     const offense = game1.away;

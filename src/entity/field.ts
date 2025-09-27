@@ -33,6 +33,10 @@ export class Field {
     return null;
   }
 
+  runnersOnBase(): number {
+    return Object.values(this.onBase).reduce((acc, player) => player ? acc + 1 : acc, 0);
+  }
+
   // pretty sure this is wrong
   advanceRunners(batterMovesToBase: Base, batter: TeamPlayer, inning: Outcome) {
     const forcedMovements = batterMovesToBase === "1B" ? 1 : batterMovesToBase === "2B" ? 2 : batterMovesToBase === "3B" ? 3 : 4;

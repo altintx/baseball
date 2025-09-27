@@ -154,7 +154,7 @@ export class Player {
   roll(attribute: PlayerAttributeBucket, dice: 4 | 6 | 8 | 12 | 20, options?: { buff?: number }): number {
     const buff = this.playerAttributes()[attribute] - Player.defaultAttributeValue;
     const random = 1 + Math.floor(Math.random() * dice);
-    return Math.min(dice, (options?.buff ?? 0) + buff + random);
+    return Math.max(1, Math.min(dice, (options?.buff ?? 0) + buff + random));
   }
 
   willTryToSteal(context: { atBat: AtBat, inning: Inning; scoreDifference: number; me: TeamPlayer }): boolean {
@@ -177,25 +177,26 @@ export class Player {
     return false; // default to not stealing
   }
   willTryToBunt(context: { atBat: AtBat, inning: Inning, scoreDifference: number; pitcher: Player; catcher: Player; }): boolean {
-    if(context.inning.offensive().outs === 2) return false; // silly to bat with no outs to burn 
-    const playersOnBase = Object.entries(context.atBat.field.onBase).reduce((acc, [base, player]) => player ? acc + 1 : acc, 0);
+    const inningState = context.inning.offensive();
+    if(inningState.outs === 2) return false; // silly to bat with no outs to burn 
+    const playersOnBase = context.atBat.field.runnersOnBase();
     if(playersOnBase === 0) return false; // no one on base, no reason to bunt
     if(context.scoreDifference < -3) return false; // losing by a lot, no reason to bunt
     if(context.scoreDifference > 3) return true; // winning by a lot, bunt to waste an out
     if(context.inning.number >= 8 && context.scoreDifference > 0) return true; // late in the game and winning, bunt to waste an out
     if(context.inning.number >= 8 && context.scoreDifference < 0) return false; // late in the game and losing, no reason to bunt
-    if(context.inning.offensive().outs === 1 && playersOnBase === 2) return true; // one out and two on, good chance to move them up
-    if(context.inning.offensive().outs === 1 && playersOnBase === 1) {
+    if(inningState.outs === 1 && playersOnBase === 2) return true; // one out and two on, good chance to move them up
+    if(inningState.outs === 1 && playersOnBase === 1) {
       const baseOccupied = Object.entries(context.atBat.field.onBase).find(([base, player]) => player)?.[0];
       if(baseOccupied === "3B") return false; // no reason to bunt with only 3rd base occupied
       return true; // good chance to move them up
     }
-    if(context.inning.offensive().outs === 0 && playersOnBase === 2) {
+    if(inningState.outs === 0 && playersOnBase === 2) {
       const basesOccupied = Object.entries(context.atBat.field.onBase).filter(([base, player]) => player).map(([base, player]) => base);
       if(basesOccupied.includes("2B") && basesOccupied.includes("3B")) return false; // no reason to bunt with 2nd and 3rd occupied
       return true; // good chance to move them up
     }
-    if(context.inning.offensive().outs === 0 && playersOnBase === 1) {
+    if(inningState.outs === 0 && playersOnBase === 1) {
       const baseOccupied = Object.entries(context.atBat.field.onBase).find(([base, player]) => player)?.[0];
       if(baseOccupied === "3B") return false; // no reason to bunt with only 3rd base occupied
       return true; // good chance to move them up
@@ -203,23 +204,27 @@ export class Player {
     return false; // default to not bunting
   }
 
+  willSwing(context: { pitch: Pitch }): boolean {
+    const intelligenceCheck = this.roll("Intelligence", 20) > 12;
+    if(intelligenceCheck) {
+      const pitch = context.pitch;
+      if(!pitch) return false; // no pitch, can't swing
+      if(pitch.inStrikeZone) {
+        return true; // good pitch, swing
+      } else {
+        const dexterityCheck = this.roll("Dexterity", 20) > 12;
+        return !dexterityCheck; // bad pitch, swing only if not very dexterous
+      }
+    } else {
+      return this.roll("Dexterity", 20, { buff: context.pitch.difficultyBuff() }) > 8;
+    }
+    // chance to swing is based on dexterity and intelligence
+  }
+
   will(action: "swing" | "take" | "bunt" | "steal" | "catch" | "check" | "tag" | "force" | "throw", context: { game: Game, atBat: AtBat, inning: Inning; me: TeamPlayer; pitcher: Player; catcher: Player, pitch: Pitch | null }): boolean {
     switch(action) {
       case "swing": {
-        const intelligenceCheck = this.roll("Intelligence", 20) > 12;
-        if(intelligenceCheck) {
-          const pitch = context.pitch;
-          if(!pitch) return false; // no pitch, can't swing
-          if(pitch.inStrikeZone) {
-            return true; // good pitch, swing
-          } else {
-            const dexterityCheck = this.roll("Dexterity", 20) > 12;
-            return !dexterityCheck; // bad pitch, swing only if not very dexterous
-          }
-        } else {
-
-        }
-        // chance to swing is based on dexterity and intelligence
+        
       }
     }
     return false;

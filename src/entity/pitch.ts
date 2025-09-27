@@ -52,7 +52,8 @@ export class Pitch {
       pitcher.roll("Wisdom", 20),
     ];
     const pitch = Math.min(str, dex, wis);
-    const randomPitchIndex = Math.floor((pitch / 20.001) * PitchTypes.length);
+    let randomPitchIndex = Math.floor((pitch / 20.001) * PitchTypes.length);
+    if(randomPitchIndex >= PitchTypes.length) randomPitchIndex = PitchTypes.length - 1;
     // if pitcher has energy and batter+pitcher have same dexterity, more likely to throw fastball
     // if pitcher has low energy but they have same dexterity, more likely to throw offspeed
     // if pitcher has energy and they have different dexterity, more likely to throw a tricky pitch
@@ -67,8 +68,9 @@ export class Pitch {
       }
     } else if(sameDexterity && !hasEnergy) {
       if(str > 15) {
-        return new Pitch(game, pitcher, batter, 80 + pitcher.roll('Strength', 12), 1500 + Math.random() * 1000, "Fastball");
+        return new Pitch(game, pitcher, batter, 80 + pitcher.roll('Strength', 12), 1500 + Math.random() * 1000, "Fastball"); 
       } else {
+        console.log({ randomPitchIndex, pitch: PitchTypes[randomPitchIndex]})
         return new Pitch(game, pitcher, batter, 60 + pitcher.roll('Strength', 20), 1000 + Math.random() * 2000, PitchTypes[randomPitchIndex]);
       }
     } else if(!sameDexterity && hasEnergy) {

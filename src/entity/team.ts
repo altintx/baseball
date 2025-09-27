@@ -1,8 +1,9 @@
+import { ActiveRoster } from "./roster";
 import { TeamPlayer } from "./team-player";
 import { UniformColor } from "./uniform-color";
 
 export class Team {
-  players: TeamPlayer[];
+  players: ActiveRoster;
   name: string;
   city: string;
   homeColor: [UniformColor, UniformColor];
@@ -13,13 +14,16 @@ export class Team {
     city: string;
     homeColor: [UniformColor, UniformColor];
     awayColor: [UniformColor, UniformColor];
-    players?: TeamPlayer[];
+    players: ActiveRoster;
   }) {
     this.name = attributes.name;
     this.city = attributes.city;
     this.homeColor = attributes.homeColor;
     this.awayColor = attributes.awayColor;
-    this.players = attributes.players ?? [];
+    if(attributes.players.some(player => attributes.players.findIndex(otherPlayer => otherPlayer !== player && otherPlayer.number === player.number) !== -1)) {
+      throw new Error(`Team ${this.name} has duplicate player numbers`);
+    }
+    this.players = attributes.players;
   }
 
   bestPitcher(): TeamPlayer {

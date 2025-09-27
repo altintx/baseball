@@ -1,9 +1,9 @@
 import { Game } from "../../../entity/game";
-import { Team1 } from "../team/team1";
-import { Team2 } from "../team/team2";
+import { baltimoreFederals } from "../team/baltimore-federals";
+import { cheyenneBaldEagles } from "../team/cheyenne-bald-eagles";
 
 export const game1 = new Game(
-  Team1,
-  Team2,
+  baltimoreFederals,
+  cheyenneBaldEagles,
   new Date(2024, 2, 15, 19, 0),
 );
