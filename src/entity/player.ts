@@ -152,7 +152,7 @@ export class Player {
   }
 
   roll(attribute: PlayerAttributeBucket, dice: 4 | 6 | 8 | 12 | 20): number {
-    const buff = this.playerAttributes()[attribute] - 8;
+    const buff = this.playerAttributes()[attribute] - Player.defaultAttributeValue;
     const random = 1 + Math.floor(Math.random() * dice);
     return Math.min(dice, buff + random);
   }

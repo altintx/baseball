@@ -171,7 +171,6 @@ export class AtBat {
           game.logger.log("normal", `   ${this.batter.player.lastName} strikes out!`);
           this.outcome = "Out";
           offensiveInning.outs++;
-          this.pitcher.awardExperience(5, game);
         }
         
         return this;

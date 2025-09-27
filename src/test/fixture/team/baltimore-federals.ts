@@ -24,4 +24,4 @@ export const baltimoreFederals = new Team({
     detailColor: "#FFFFFF",
   })
   ],
-})
+});

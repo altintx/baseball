@@ -13,12 +13,13 @@ export class Team {
     city: string;
     homeColor: [UniformColor, UniformColor];
     awayColor: [UniformColor, UniformColor];
+    players?: TeamPlayer[];
   }) {
     this.name = attributes.name;
     this.city = attributes.city;
     this.homeColor = attributes.homeColor;
     this.awayColor = attributes.awayColor;
-    this.players = [];
+    this.players = attributes.players ?? [];
   }
 
   bestPitcher(): TeamPlayer {
