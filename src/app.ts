@@ -8,59 +8,10 @@ import { PlayerPositions } from "./entity/player-position";
 import { Team } from "./entity/team";
 import { TeamPlayer } from "./entity/team-player";
 import { UniformColor } from "./entity/uniform-color";
+import { baltimoreFederals } from "./test/fixture/team/baltimore-federals";
+import { cheyenneBaldEagles } from "./test/fixture/team/cheyenne-bald-eagles";
 
-const teams: Team[] = [
-  new Team({
-  name: "Federals",
-  city: "Baltimore",
-  homeColor: [new UniformColor({
-    name: "Navy and White",
-    primaryColor: "#0033A0",
-    detailColor: "#FFFFFF",
-  }), new UniformColor({
-    name: "Gray and Navy",
-    primaryColor: "#C4CED4",
-    detailColor: "#0033A0",
-  })
-  ],
-  awayColor: [new UniformColor({
-    name: "Gray and Navy",
-    primaryColor: "#C4CED4",
-    detailColor: "#0033A0",
-  }), new UniformColor({
-    name: "Navy and White",
-    primaryColor: "#0033A0",
-    detailColor: "#FFFFFF",
-  })
-  ],
-}),
-new Team({
-  name: "Bald Eagles",
-  city: "Cheyenne",
-  homeColor: [new UniformColor({
-    name: "Red and White",
-    primaryColor: "#BD3039",
-    detailColor: "#FFFFFF",
-  }), new UniformColor({
-    name: "Navy and Red",
-    primaryColor: "#0C2340",
-    detailColor: "#BD3039",
-  })
-  ],
-  awayColor: [new UniformColor({
-    name: "Gray and Navy",
-    primaryColor: "#C4CED4",
-    detailColor: "#0C2340",
-  }), new UniformColor({
-    name: "Navy and Red",
-    primaryColor: "#0C2340",
-    detailColor: "#BD3039",
-  })
-  ],
-}),
-];
-
-console.log(teams);
+const teams: Team[] = [baltimoreFederals, cheyenneBaldEagles];
 for (const team of teams) {
   for (let i = 0; i < 25; i++) {
     const player = Player.generate(i / 25, "USA", "male")
@@ -88,11 +39,11 @@ for (const team of teams) {
   }
 }
 
-const game = new Game(teams[0], teams[1], new Date());
-console.log(`Simulating game between ${game.away.team.city} ${game.away.team.name} (away) and ${game.home.team.city} ${game.home.team.name} (home) on ${game.date.toDateString()}`);
+const game = new Game(teams[0], teams[1], new Date(), 'quiet');
+game.logger.log('quiet', `Simulating game between ${game.away.team.city} ${game.away.team.name} (away) and ${game.home.team.city} ${game.home.team.name} (home) on ${game.date.toDateString()}`);
 game.on("inningChange", (inning) => {
-  console.log(renderScoreBoardAsText(game));
+  game.logger.log('quiet', renderScoreBoardAsText(game));
 });
 const outcome = game.simulate();
-console.log(`Final Score: ${outcome.away.team.name} ${game.runs('away')} - ${outcome.home.team.name} ${outcome.runs('home')}`);
-console.log(`${outcome.winner?.name ?? "No one"} won!`);
+game.logger.log('quiet', `Final Score: ${outcome.away.team.name} ${game.runs('away')} - ${outcome.home.team.name} ${outcome.runs('home')}`);
+game.logger.log('quiet', `${outcome.winner?.name ?? "No one"} won!`);
