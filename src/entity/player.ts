@@ -151,10 +151,10 @@ export class Player {
     }
   }
 
-  roll(attribute: PlayerAttributeBucket, dice: 4 | 6 | 8 | 12 | 20): number {
+  roll(attribute: PlayerAttributeBucket, dice: 4 | 6 | 8 | 12 | 20, options?: { buff?: number }): number {
     const buff = this.playerAttributes()[attribute] - Player.defaultAttributeValue;
     const random = 1 + Math.floor(Math.random() * dice);
-    return Math.min(dice, buff + random);
+    return Math.min(dice, (options?.buff ?? 0) + buff + random);
   }
 
   willTryToSteal(context: { atBat: AtBat, inning: Inning; scoreDifference: number; me: TeamPlayer }): boolean {
@@ -172,7 +172,7 @@ export class Player {
     if (shouldTry) {
       const pitcherPickOff = context.atBat.pitcher.player.roll("Intelligence", 20);
       const catcherThrow = context.atBat.field.fielders.C.player.roll("Dexterity", 20);
-      return context.me.player.roll("Dexterity", 20) + 2 > (pitcherPickOff + catcherThrow);
+      return context.me.player.roll("Dexterity", 20, { buff: 2 }) > (pitcherPickOff + catcherThrow);
     }
     return false; // default to not stealing
   }
