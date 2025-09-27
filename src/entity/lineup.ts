@@ -19,9 +19,9 @@ export class Lineup {
 
   constructor(team: Team, startingPitcher: TeamPlayer, useDh: boolean = true) {
     this.positions = PlayerPositions.reduce((acc, position) => {
-      const playerForPosition = team.players.find(tp => tp.position === position);
+      let playerForPosition = team.players.find(tp => tp.position === position);
       if(position === "DH" && !playerForPosition) {
-        const pitcher = team.players.find(tp => tp === startingPitcher);
+        playerForPosition = startingPitcher;
       } else if (!playerForPosition) {
         throw new Error(`No player found for position ${position} in team ${team.name}`);
       }

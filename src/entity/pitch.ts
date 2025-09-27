@@ -70,7 +70,6 @@ export class Pitch {
       if(str > 15) {
         return new Pitch(game, pitcher, batter, 80 + pitcher.roll('Strength', 12), 1500 + Math.random() * 1000, "Fastball"); 
       } else {
-        console.log({ randomPitchIndex, pitch: PitchTypes[randomPitchIndex]})
         return new Pitch(game, pitcher, batter, 60 + pitcher.roll('Strength', 20), 1000 + Math.random() * 2000, PitchTypes[randomPitchIndex]);
       }
     } else if(!sameDexterity && hasEnergy) {
