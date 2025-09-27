@@ -26,6 +26,13 @@ export class Field {
     return new AtBat({ batter, pitcher, field, balls: 0, strikes: 0 });
   }
 
+  runnersBase(teamPlayer: TeamPlayer): Base | null {
+    for (const [base, player] of Object.entries(this.onBase) as [Base, TeamPlayer | null][]) {
+      if(player === teamPlayer) return base;
+    }
+    return null;
+  }
+
   // pretty sure this is wrong
   advanceRunners(batterMovesToBase: Base, batter: TeamPlayer, inning: Outcome) {
     const forcedMovements = batterMovesToBase === "1B" ? 1 : batterMovesToBase === "2B" ? 2 : batterMovesToBase === "3B" ? 3 : 4;

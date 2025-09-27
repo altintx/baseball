@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { Field } from "./field";
 import { game1 } from "../test/fixture/game/game1";
 import { Inning } from "./inning";
-import { PlayerPosition, PlayerPositions } from "./player-position";
 import { TeamPlayer } from "./team-player";
 
 describe("field", () => {
@@ -22,5 +21,23 @@ describe("field", () => {
     expect(outcome.runs).toBe(0);
     expect(outcome.outs).toBe(0);
     expect(outcome.atBats).toBe(1);
-  })
+  });
+  it("should identify the base a runner is on, if any", () => {
+    const offense = game1.away;
+    const defense = game1.home;
+    const f = new Field(defense.lineUp.positions, game1);
+    let p = offense.lineUp.positions[offense.lineUp.battingOrder[0]];
+    expect(f.runnersBase(p)).toBe(null);
+    f.onBase["1B"] = p;
+    expect(f.runnersBase(p)).toBe("1B");
+    f.onBase["1B"] = null;
+    f.onBase["2B"] = p;
+    expect(f.runnersBase(p)).toBe("2B");
+    f.onBase["2B"] = null;
+    f.onBase["3B"] = p;
+    expect(f.runnersBase(p)).toBe("3B");
+    f.onBase["3B"] = null;
+    f.onBase.H = p;
+    expect(f.runnersBase(p)).toBe("H");
+  });
 })
