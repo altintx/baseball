@@ -13,6 +13,7 @@ describe("field", () => {
     const batter = offense.lineUp.positions[offense.lineUp.battingOrder[0]];
     expect(batter).toBeInstanceOf(TeamPlayer);
     const outcome = inning.offensive();
+    const atBat = f.atBat(batter, defense.lineUp.positions.P, inning);
     f.onBase.H = batter;
     f.advanceRunners("1B", batter, outcome);
     expect(f.onBase["1B"]).toBe(batter);
@@ -39,5 +40,26 @@ describe("field", () => {
     f.onBase["3B"] = null;
     f.onBase.H = p;
     expect(f.runnersBase(p)).toBe("H");
+  });
+  it("should move a runner from first to third on a double", () => {
+    const offense = game1.away;
+    const defense = game1.home;
+    const f = new Field(defense.lineUp.positions, game1);
+    const inning = new Inning(1);
+    const leadOff = offense.lineUp.positions[offense.lineUp.battingOrder[0]];
+    const batter = offense.lineUp.positions[offense.lineUp.battingOrder[1]];
+    const atBat = f.atBat(batter, defense.lineUp.positions.P, inning);
+    expect(batter).toBeInstanceOf(TeamPlayer);
+    const outcome = inning.offensive();
+    f.onBase["1B"] = leadOff;
+    console.log(f.onBase);
+    f.advanceRunners("2B", batter, outcome);
+    expect(f.onBase["1B"]).toBe(null);
+    expect(f.onBase["2B"]).toBe(batter);
+    console.log(f.onBase);
+    expect(f.onBase["3B"]).toBe(leadOff);
+    expect(f.onBase.H).toBe(null);
+    expect(outcome.runs).toBe(0);
+    expect(outcome.outs).toBe(0);
   });
 })
