@@ -222,9 +222,12 @@ export class Player {
   }
 
   will(action: "swing" | "take" | "bunt" | "steal" | "catch" | "check" | "tag" | "force" | "throw", context: { game: Game, atBat: AtBat, inning: Inning; me: TeamPlayer; pitcher: Player; catcher: Player, pitch: Pitch | null }): boolean {
-    switch(action) {
-      case "swing": {
-        
+    switch(true) {
+      case action === "swing" && !!context.pitch: {
+        return this.willSwing({ pitch: context.pitch! });
+      }
+      case action === "swing" && !context.pitch: {
+        return false;
       }
     }
     return false;
