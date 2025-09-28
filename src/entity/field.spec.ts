@@ -61,4 +61,46 @@ describe("field", () => {
     expect(outcome.runs).toBe(0);
     expect(outcome.outs).toBe(0);
   });
+  it("should move a runner from second to home on a triple", () => {
+    const offense = game1.away;
+    const defense = game1.home;
+    const f = new Field(defense.lineUp.positions, game1);
+    const inning = new Inning(1);
+    const leadOff = offense.lineUp.positions[offense.lineUp.battingOrder[0]];
+    const batter = offense.lineUp.positions[offense.lineUp.battingOrder[1]];
+    const atBat = f.atBat(batter, defense.lineUp.positions.P, inning);
+    expect(batter).toBeInstanceOf(TeamPlayer);
+    const outcome = inning.offensive();
+    expect(outcome.runs).toBe(0);
+    f.onBase["2B"] = leadOff;
+    f.advanceRunners("3B", batter, outcome);
+    expect(f.onBase["1B"]).toBe(null);
+    expect(f.onBase["2B"]).toBe(null);
+    expect(f.onBase["3B"]).toBe(batter);
+    expect(f.onBase.H).toBe(null);
+    expect(outcome.runs).toBe(1);
+    expect(outcome.outs).toBe(0);
+  });
+  it("should move 3 movements a run, an advance to third, and a hit to second on a double with runners on 2nd and 3rd", () => {
+    const offense = game1.away;
+    const defense = game1.home;
+    const f = new Field(defense.lineUp.positions, game1);
+    const inning = new Inning(1);
+    const leadOff = offense.lineUp.positions[offense.lineUp.battingOrder[0]];
+    const leadOff2 = offense.lineUp.positions[offense.lineUp.battingOrder[1]];
+    const batter = offense.lineUp.positions[offense.lineUp.battingOrder[2]];
+    const atBat = f.atBat(batter, defense.lineUp.positions.P, inning);
+    expect(batter).toBeInstanceOf(TeamPlayer);
+    const outcome = inning.offensive();
+    expect(outcome.runs).toBe(0);
+    f.onBase["3B"] = leadOff;
+    f.onBase["2B"] = leadOff2;
+    f.advanceRunners("2B", batter, outcome);
+    expect(f.onBase["1B"]).toBe(null);
+    expect(f.onBase["2B"]).toBe(batter);
+    expect(f.onBase["3B"]).toBe(leadOff2);
+    expect(f.onBase.H).toBe(null);
+    expect(outcome.runs).toBe(1);
+    expect(outcome.outs).toBe(0);
+  });
 })
