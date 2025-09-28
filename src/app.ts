@@ -19,5 +19,5 @@ game.on("inningChange", (inning) => {
   game.logger.log('quiet', renderScoreBoardAsText(game));
 });
 const outcome = game.simulate();
-game.logger.log('quiet', `Final Score: ${outcome.away.team.name} ${game.runs('away')} - ${outcome.home.team.name} ${outcome.runs('home')}`);
+game.logger.log('quiet', renderScoreBoardAsText(game));
 game.logger.log('quiet', `${outcome.winner?.name ?? "No one"} won!`);

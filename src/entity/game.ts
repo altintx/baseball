@@ -43,7 +43,7 @@ export class Game extends Observable{
   winnerTeam(context: { inning: number; inningState: "Top" | "Bottom", outs: number }): Team | null {
     if(this.innings.length >= 9 && this.runs('home') > this.runs('away')) {
       return this.home.team;
-    } else if(context.inning > 9 && context.inningState === "Bottom" && this.runs('away') > this.runs('home')) {
+    } else if(context.inning >= 9 && context.inningState === "Bottom" && this.runs('away') > this.runs('home')) {
       return this.away.team;
     }
     return null;
