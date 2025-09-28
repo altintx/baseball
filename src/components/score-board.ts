@@ -18,7 +18,7 @@ export function renderScoreBoardAsText(game: Game): string {
   homeLine.push(game.runs('home'), game.hits('home'), game.errors('home'));
   const lines = [
     header.map(h => h.toString().padStart(2)).join(" | "),
-    "-".repeat(header.length * 4 - 1),
+    "-".repeat(header.length * 5),
     awayLine.map(h => h.toString().padStart(2)).join(" | "),
     homeLine.map(h => h.toString().padStart(2)).join(" | "),
   ];

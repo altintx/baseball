@@ -13,7 +13,7 @@ for (const team of teams) {
   }
 }
 
-const game = new Game(teams[0], teams[1], new Date(), 'normal');
+const game = new Game(teams[0], teams[1], new Date(), 'quiet');
 game.logger.log('quiet', `Simulating game between ${game.away.team.city} ${game.away.team.name} (away) and ${game.home.team.city} ${game.home.team.name} (home) on ${game.date.toDateString()}`);
 game.on("inningChange", (inning) => {
   game.logger.log('quiet', renderScoreBoardAsText(game));

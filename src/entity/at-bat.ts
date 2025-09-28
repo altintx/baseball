@@ -187,7 +187,6 @@ export class AtBat {
           game.logger.log("quiet",`   ${this.batter.player.lastName}! Is! Going! All! The! Way!`);
           this.outcome = "Hit";
           field.advanceRunners("H", this.batter, offensiveInning);
-          
           this.batter.awardExperience(50, game);
         } else if (achievedHit && hitQuality > 0.8) {
           game.logger.log("quiet",`   ${this.batter.player.lastName} takes a trip to third!`);

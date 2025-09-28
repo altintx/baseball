@@ -49,6 +49,15 @@ export class Game extends Observable{
     return null;
   }
 
+  newInning(number: number): Inning {
+    const inning = new Inning(number);
+    if(this.innings.find(i => i.number === number)) {
+      throw new Error(`Inning ${number} already exists`);
+    }
+    this.innings.push(inning);
+    return inning;
+  }
+
   simulate(): Game {
     const bullpens = {
       home: this.home.team.players.filter(p => p.position === "P" && p !== this.home.lineUp.positions["P"]),
@@ -56,10 +65,9 @@ export class Game extends Observable{
     }
     for(let inning = 1; !this.winner || inning <= 9; inning++) {
       if(this.winner) break;
-      this.innings.push(new Inning(inning));
+      const currentInning = this.newInning(inning);
       for(let team: "home" | "away" | null = "away"; team !== null && !this.winner; team = team === "away" ? "home" : null) {
-        this.emit("inningChange", this.innings[this.innings.length - 1]);
-        const currentInning = this.innings[this.innings.length - 1];
+        this.emit("inningChange", currentInning);
         currentInning.state = team === "away" ? "Top" : "Bottom";
         if(team === null) break;
         this.logger.log("quiet", `${currentInning.state} of the ${inning}th`);
