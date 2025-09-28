@@ -49,44 +49,49 @@ export class Field {
     // if a double, nobody on, batter to 2nd
     // if a single, and somebody on 3rd, 3rd scores, batter to 1st
     const batterMovements = batterMovesToBase === "1B" ? 1 : batterMovesToBase === "2B" ? 2 : batterMovesToBase === "3B" ? 3 : 4;
-    const firstBaseMovements = Math.max(0, this.onBase["1B"] ? Math.max(batterMovements, 1): batterMovements - 1);
-    const secondBaseMovements = Math.max(0, this.onBase["2B"] ? Math.max(firstBaseMovements, 2): firstBaseMovements - 1);
-    const thirdBaseMovements = Math.max(0, this.onBase["3B"] ? Math.max(secondBaseMovements, 1) : secondBaseMovements - 1);
+    console.log(`batter movements: ${batterMovements} for hit to ${batterMovesToBase}`);
+    const firstBaseMovements = Math.max(0, Math.min(batterMovements, 3));
+    const secondBaseMovements = Math.max(0, Math.min(firstBaseMovements - 1, 2));
+    const thirdBaseMovements = Math.max(0, Math.min(secondBaseMovements - 1, 1));
     let rbi = 0;
     const atBat = inning.atBats[inning.atBats.length - 1];
     if(!atBat) throw new Error("No atBat found for this inning");
     if(this.onBase["3B"] && thirdBaseMovements > 0) {
       this.onBase["3B"] = null;
       rbi++;
+      console.log("awarding an rbi from runner on 3B")
       this.game.logger.log("normal", `    ${atBat.batter.player.firstName} ${atBat.batter.player.lastName} drove in a run!`);
     }
-    if(secondBaseMovements === 2) {
+    if(this.onBase["2B"] && secondBaseMovements === 2) {
       this.onBase["2B"] = null;
       rbi++;
+      console.log("awarding an rbi from runner on 2B")
       this.game.logger.log("normal", `    ${atBat.batter.player.firstName} ${atBat.batter.player.lastName} drove in a run!`);
-    } else if (secondBaseMovements === 1) {
+    } else if (this.onBase["2B"] && secondBaseMovements === 1) {
       this.onBase["3B"] = this.onBase["2B"];
       this.onBase["2B"] = null;
       this.game.logger.log("verbose", `    ${this.onBase["3B"]?.player.firstName} ${this.onBase["3B"]?.player.lastName} advanced to third.`);
     } 
 
-    if(firstBaseMovements === 3) {
+    if(this.onBase["1B"] && firstBaseMovements === 3) {
+      this.onBase["H"] = this.onBase["1B"];
+      this.onBase["1B"] = null;
+      rbi++;
+      console.log("awarding an rbi from runner on 1B")
+      this.game.logger.log("verbose", `    ${this.onBase["3B"]?.player.firstName} ${this.onBase["3B"]?.player.lastName} advanced to third.`);
+    } else if (this.onBase["1B"] && firstBaseMovements === 2) {
       this.onBase["3B"] = this.onBase["1B"];
       this.onBase["1B"] = null;
-      this.game.logger.log("verbose", `    ${this.onBase["3B"]?.player.firstName} ${this.onBase["3B"]?.player.lastName} advanced to third.`);
-    } else if (firstBaseMovements === 2) {
+      this.game.logger.log("verbose", `    ${this.onBase["2B"]?.player.firstName} ${this.onBase["2B"]?.player.lastName} advanced to second.`);
+    } else if (this.onBase["1B"] && firstBaseMovements === 1) {
       this.onBase["2B"] = this.onBase["1B"];
       this.onBase["1B"] = null;
-      this.game.logger.log("verbose", `    ${this.onBase["2B"]?.player.firstName} ${this.onBase["2B"]?.player.lastName} advanced to second.`);
-    } else if (firstBaseMovements === 1) {
-      this.onBase["1B"] = null;
       this.game.logger.log("verbose", `    ${atBat.batter.player.firstName} ${atBat.batter.player.lastName} advanced to first.`);
-    } else if (firstBaseMovements !== 0) {
-      throw new Error(`Unexpected first base movement value: ${firstBaseMovements}`);
-    }
+    } 
 
     if(batterMovements === 4) {
       rbi++;
+      console.log("awarding an rbi from batter")
       this.onBase.H = null;
       this.game.logger.log("normal", `    ${atBat.batter.player.firstName} ${atBat.batter.player.lastName} drove in a run!`);
     } else {
@@ -96,7 +101,7 @@ export class Field {
     }
     if(rbi > 0) {
       inning.runs += rbi;
-      this.game.logger.log("quiet", `    That was anincredible ${rbi} RBI play for ${atBat.batter.player.firstName} ${atBat.batter.player.lastName}.`);
+      this.game.logger.log("quiet", `    That was an incredible ${rbi} RBI play for ${atBat.batter.player.firstName} ${atBat.batter.player.lastName}.`);
     }
   }
 }

@@ -51,12 +51,11 @@ describe("field", () => {
     const atBat = f.atBat(batter, defense.lineUp.positions.P, inning);
     expect(batter).toBeInstanceOf(TeamPlayer);
     const outcome = inning.offensive();
+    expect(outcome.runs).toBe(0);
     f.onBase["1B"] = leadOff;
-    console.log(f.onBase);
     f.advanceRunners("2B", batter, outcome);
     expect(f.onBase["1B"]).toBe(null);
     expect(f.onBase["2B"]).toBe(batter);
-    console.log(f.onBase);
     expect(f.onBase["3B"]).toBe(leadOff);
     expect(f.onBase.H).toBe(null);
     expect(outcome.runs).toBe(0);

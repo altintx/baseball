@@ -71,7 +71,7 @@ export class Game extends Observable{
         const atBats: AtBat[] = [];
         while (outcome.outs < 3) {
           const batter = offense.lineUp.positions[offense.lineUp.battingOrder[this.positionInLineup[team] % 9]];
-          const atBat = field.atBat(batter, defense.lineUp.positions["P"], field);
+          const atBat = field.atBat(batter, defense.lineUp.positions["P"], currentInning);
           this.logger.log("quiet", "atBat", atBat.batter.player.lastName, "vs", atBat.pitcher.player.lastName);
           do {
             const pitcherEnergy = atBat.pitcher.player.energy(this);
