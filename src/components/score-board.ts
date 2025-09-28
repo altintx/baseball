@@ -3,11 +3,13 @@ import { Game } from "../entity/game";
 export function renderScoreBoardAsText(game: Game): string {
   const awayTeam = game.away.team;
   const homeTeam = game.home.team;
-  const innings = game.innings.length;
-  const header = ["TEA", 1, 2, 3, 4, 5, 6, 7, 8, 9, "R", "H", "E"];
+  const playedInnings = game.innings.length;
+  const gameInnings = Math.max(9, playedInnings);
+  const inningBanner = Array.from({ length: gameInnings }, (_, i) => (i + 1).toString());
+  const header = ["TEA", ...inningBanner, "R", "H", "E"];
   const awayLine: (string | number)[] = [awayTeam.abbreviation()];
   const homeLine: (string | number)[] = [homeTeam.abbreviation()];
-  for(let inning = 0; inning < 9; inning++) {
+  for(let inning = 0; inning < gameInnings; inning++) {
     const inningData = game.innings[inning];
     awayLine.push(inningData?.outcomes?.away?.runs.toString() ?? "");
     homeLine.push(inningData?.outcomes?.home?.runs.toString() ?? "" );
