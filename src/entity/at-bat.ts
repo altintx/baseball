@@ -15,6 +15,7 @@ export class AtBat {
 
   balls: number;
   strikes: number;
+  rbi: number;
 
   constructor(p: { batter: TeamPlayer, pitcher: TeamPlayer, balls: number, strikes: number, field: Field }) {
     this.batter = p.batter;
@@ -23,6 +24,7 @@ export class AtBat {
     this.pitches = [];
     this.balls = p.balls ?? 0;
     this.strikes = p.strikes ?? 0;
+    this.rbi = 0;
     this.field = p.field;
   }
 

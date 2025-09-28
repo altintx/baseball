@@ -46,6 +46,8 @@ export class Field {
       "3B": "H",
       "H": "H",
     };
+    const atBat = inning.atBats[inning.atBats.length - 1];
+    if(!atBat) throw new Error("No atBat found in inning when trying to advance runners");
     const baseValue: Record<Base, number> = { "1B": 1, "2B": 2, "3B": 3, "H": 4 };
 
     const push = (base: Base) => {
@@ -56,7 +58,7 @@ export class Field {
       this.onBase[base] = null;
 
       if (dest === "H") {
-        inning.runs = (inning.runs ?? 0) + 1;
+        atBat.rbi++;
         return;
       }
 
@@ -74,10 +76,11 @@ export class Field {
     }
 
     if (batterMovesToBase === "H") {
-      inning.runs = (inning.runs ?? 0) + 1;
+      atBat.rbi++;
     } else {
       this.onBase[batterMovesToBase] = batter;
     }
+    inning.runs += atBat.rbi;
     this.onBase.H = null;
   }
 }
