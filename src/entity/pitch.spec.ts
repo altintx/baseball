@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { Pitch } from './pitch'
-import { PitchfordMcPitcherson } from '../test/fixture/team-player/pitchford-mcpitcherson'
-import { BattyMcBatterson } from '../test/fixture/team-player/batty-mcbatterson'
 import { game1 } from '../test/fixture/game/game1'
 
 describe("Pitch", () => {

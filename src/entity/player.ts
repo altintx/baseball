@@ -117,10 +117,6 @@ export class Player {
     return new Player(playerAttributes);
   }
 
-  positions(): TeamPlayer[] {
-    return [];
-  }
-
   playerAttributes(): Record<PlayerAttributeBucket, number> {
     const result: Record<PlayerAttributeBucket, number> = {
       Strength: 0,
@@ -228,6 +224,24 @@ export class Player {
       }
       case action === "swing" && !context.pitch: {
         return false;
+      }
+      case action === "take": {
+        return !this.willSwing({ pitch: context.pitch! });
+      }
+      case action === "bunt": {
+        return this.willTryToBunt({ atBat: context.atBat, inning: context.inning, scoreDifference: context.game.runs('away') - context.game.runs('home'), pitcher: context.pitcher, catcher: context.catcher });
+      }
+      case action === "steal": {
+        return this.willTryToSteal({ atBat: context.atBat, inning: context.inning, scoreDifference: context.game.runs('away') - context.game.runs('home'), me: context.me });
+      }
+      case action === "catch": {
+        return this.roll("Dexterity", 20) > 10;
+      }
+      case action === "check": {
+        return this.roll("Intelligence", 20) > 10;
+      }
+      case action === "tag": {
+        return this.roll("Dexterity", 20) > 10;
       }
     }
     return false;

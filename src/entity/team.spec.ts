@@ -5,6 +5,8 @@ import { Player } from "./player";
 import { PlayerPositions } from "./player-position";
 import { TeamPlayer } from "./team-player";
 import { ActiveRoster } from "./roster";
+import { game1 } from "../test/fixture/game/game1";
+import { baltimoreFederalsTeamPlayerStartingPitcher } from "../test/fixture/team/baltimore-federals/team-players/pitcher";
 
 function teamFactory(city: string, name: string): Team {
   const teamPlayers = Array.from({ length: 9 }, (_, i) => {
@@ -41,6 +43,9 @@ describe("Team", () => {
     expect(teamFactory("C", "T").abbreviation()).toBe("CT");
     expect(teamFactory("C 1", "T").abbreviation()).toBe("C1T");
     expect(teamFactory("C 1 2", "T").abbreviation()).toBe("C1T");
+  });
 
+  it("should select the bestPitcher from the available pitchers", () => {
+    expect(game1.home.team.bestPitcher()).toBe(baltimoreFederalsTeamPlayerStartingPitcher);
   });
 })
