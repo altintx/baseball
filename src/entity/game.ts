@@ -59,10 +59,6 @@ export class Game extends Observable{
   }
 
   simulate(): Game {
-    const bullpens = {
-      home: this.home.team.players.filter(p => p.position === "P" && p !== this.home.lineUp.positions["P"]),
-      away: this.away.team.players.filter(p => p.position === "P" && p !== this.away.lineUp.positions["P"]),
-    }
     for(let inning = 1; !this.winner || inning <= 9; inning++) {
       if(this.winner) break;
       const currentInning = this.newInning(inning);
@@ -83,11 +79,9 @@ export class Game extends Observable{
           this.logger.log("quiet", "atBat", atBat.batter.player.lastName, "vs", atBat.pitcher.player.lastName);
           do {
             const pitcherEnergy = atBat.pitcher.player.energy(this);
-            if(pitcherEnergy < 80 && bullpens[team].length > 0) {
-              this.logger.log("verbose", `  ${atBat.pitcher.player.lastName} is getting tired (energy ${pitcherEnergy}). Bringing in a reliever.`);
-              const newPitcher = bullpens[team].shift()!;
-              this.logger.log("quiet", `  ${newPitcher.player.lastName} is now pitching.`);
-              defense.lineUp.positions["P"] = newPitcher;
+            if(pitcherEnergy < 80 && defense.bullPen().length > 0) {
+              const newPitcher = defense.bullPen().shift()!;
+              defense.relieve(atBat.pitcher, newPitcher);
               atBat.pitcher = newPitcher;
             } else if (pitcherEnergy < 50) {
               this.logger.log("quiet", `  Pitcher is exhausted and no ${defense.team.name} relievers are available. Giving up the game.`);
