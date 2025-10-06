@@ -183,7 +183,7 @@ export class Player {
     if(context.inning.number >= 8 && context.scoreDifference < 0) return false; // late in the game and losing, no reason to bunt
     if(inningState.outs === 1 && playersOnBase === 2) return true; // one out and two on, good chance to move them up
     if(inningState.outs === 1 && playersOnBase === 1) {
-      const baseOccupied = Object.entries(context.atBat.field.onBase).find(([base, player]) => player)?.[0];
+      const baseOccupied = Object.entries(context.atBat.field.onBase).find(([_base, player]) => player)?.[0];
       if(baseOccupied === "3B") return false; // no reason to bunt with only 3rd base occupied
       return true; // good chance to move them up
     }
