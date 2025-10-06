@@ -9,6 +9,14 @@ for (const team of teams) {
   console.log(`${team.city} ${team.name} Roster:`);
   for (const tp of team.players) {
     const a = tp.player.playerAttributes();
+    tp.player.proficencies = [
+      { type: "Charisma", value: 9 },
+      { type: "Constitution", value: 9 },
+      { type: "Dexterity", value: 9 },
+      { type: "Intelligence", value: 9 },
+      { type: "Strength", value: 9 },
+      { type: "Wisdom", value: 9 },
+    ]
     console.log(`- #${tp.number} ${tp.player.lastName}, ${tp.player.firstName} (${tp.position}, ${tp.player.battingSide('brief')}) STR ${a.Strength} INT ${a.Intelligence} DEX ${a.Dexterity} CHA ${a.Charisma} CON ${a.Constitution} WIS ${a.Wisdom}`);
   }
 }

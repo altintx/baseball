@@ -21,13 +21,6 @@ export class Field {
     this.game = game;
   }
 
-  atBat(batter: TeamPlayer, pitcher: TeamPlayer, inning: Inning): AtBat {
-    this.onBase.H = batter;
-    const atBat = new AtBat({ batter, pitcher, field: this, balls: 0, strikes: 0 });
-    inning.offensive().atBats.push(atBat);
-    return atBat;
-  }
-
   runnersBase(teamPlayer: TeamPlayer): Base | null {
     for (const [base, player] of Object.entries(this.onBase) as [Base, TeamPlayer | null][]) {
       if(player === teamPlayer) return base;

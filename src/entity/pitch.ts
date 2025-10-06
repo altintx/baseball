@@ -38,7 +38,7 @@ export class Pitch {
     const pitcherConstitutionRoll = this.pitcher.roll("Constitution", 4)
     const pitcherBuff = pitcherConstitutionRoll === 4 ? 1: pitcherConstitutionRoll === 1 ? -1 : 0;
     const pitchDifficultBuff = this.difficultyBuff();
-    const pitcherDexterityRoll = this.pitcher.roll("Dexterity", 20) + pitcherBuff + pitchDifficultBuff;
+    const pitcherDexterityRoll = this.pitcher.roll("Dexterity", 20, { buff: pitcherBuff + pitchDifficultBuff });
     this.inStrikeZone = pitcherDexterityRoll > 12;
     return this.inStrikeZone ? "InZone" : "OutOfZone";
   }

@@ -29,7 +29,7 @@ export class AtBat {
   }
 
   simulate(game: Game, inning: Inning): AtBat {
-    const field = this.field;
+    const field = inning.field();
     // what can happen? 
     // a player on base may try to steal a base
     // a pitcher may throw to a base to try to pick off a runner
@@ -177,12 +177,21 @@ export class AtBat {
         
         return this;
       case batterSwings:
-        // Determine if it's a hit or an out
-        const batterContact = (this.batter.player.playerAttributes().Dexterity * 0.6 + this.batter.player.playerAttributes().Strength * 0.4) / 200;
-        const pitcherDefense = (this.pitcher.player.playerAttributes().Dexterity * 0.4 + this.pitcher.player.playerAttributes().Intelligence * 0.6) / 200;
-        const hitChance = batterContact - pitcherDefense + 0.3 + pitchResult === "InZone" ? 0.1 : -0.1; // base 30% chance of hit, buffed by 10% inzone or -10% out of zone
-        const hitQuality = Math.random() + (this.batter.player.playerAttributes().Strength * 0.5 + this.batter.player.playerAttributes().Dexterity * 0.5) / 200;
-        const achievedHit = Math.random() < hitChance;
+        // Determine if it's a hit or an strike (or an out)
+        const batterRolls = {
+          // dexterity: this.batter.player.roll("Dexterity", 4, { buff: -2 }),
+          strength: this.batter.player.roll("Strength", 4, { buff: -2 }),
+        },
+        pitcherRolls = {
+          dexterity: this.pitcher.player.roll("Dexterity", 4, { buff: -2 }),
+          // intelligence: this.pitcher.player.roll("Intelligence", 4, { buff: -2 }),
+        };
+        const batterContact = this.batter.player.roll("Intelligence", 12, { buff: batterRolls.strength - 1}),
+          pitcherDefense = this.pitcher.player.roll("Intelligence", 20, { buff: pitcherRolls.dexterity - 1});
+        // Chance of making contact is based on batter's dexterity vs pitcher's dexterity and intelligence
+        const swingConnectsBuff = pitchResult === "InZone" ? 1 : -1;
+        const hitQuality = batterContact / 20;
+        const achievedHit = (batterContact + swingConnectsBuff) > pitcherDefense;
         if(achievedHit && hitQuality > 0.9) {
           game.logger.log("quiet",`   ${this.batter.player.lastName}! Is! Going! All! The! Way!`);
           this.outcome = "Hit";
@@ -201,9 +210,13 @@ export class AtBat {
           this.outcome = "Hit";
           field.advanceRunners("1B", this.batter, offensiveInning);
         } else {
-          game.logger.log("quiet",`   ${this.batter.player.lastName} is thrown out!`);
-          this.outcome = "Out";
-          offensiveInning.outs++;
+          game.logger.log("quiet",`   ${this.batter.player.lastName} swings and misses!`);
+          this.strikes++;
+          if(this.strikes >= 3) {
+            game.logger.log("normal", `   ${this.batter.player.lastName} strikes out!`);
+            this.outcome = "Out";
+            offensiveInning.outs++;
+          }
         }
         return this;
     }

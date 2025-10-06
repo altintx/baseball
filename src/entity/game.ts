@@ -9,6 +9,7 @@ import { Pitch } from "./pitch";
 import { Observable } from "./observable";
 import { LogLevel, LogLevels } from "../logging/level";
 import { Logger } from "../logging/logger";
+import { TeamPlayer } from "./team-player";
 
 export class Game extends Observable{
   home: GameTeam;
@@ -50,12 +51,17 @@ export class Game extends Observable{
   }
 
   newInning(number: number): Inning {
-    const inning = new Inning(number);
+    const inning = new Inning(number, this);
     if(this.innings.find(i => i.number === number)) {
       throw new Error(`Inning ${number} already exists`);
     }
     this.innings.push(inning);
     return inning;
+  }
+
+  currentBatter(team: "home" | "away"): TeamPlayer {
+    const gameTeam = this[team];
+    return gameTeam.lineUp.positions[gameTeam.lineUp.battingOrder[this.positionInLineup[team] % 9]];
   }
 
   simulate(): Game {
@@ -71,11 +77,9 @@ export class Game extends Observable{
         const defense = team === "away" ? this.home : this.away;
         this.logger.log("quiet", `  ${offense.team.city} ${offense.team.name} is batting`);
         const outcome = currentInning.offensive();
-        const field = new Field(defense.lineUp.positions, this)
-        const atBats: AtBat[] = [];
         while (outcome.outs < 3) {
-          const batter = offense.lineUp.positions[offense.lineUp.battingOrder[this.positionInLineup[team] % 9]];
-          const atBat = field.atBat(batter, defense.lineUp.positions["P"], currentInning);
+          const batter = this.currentBatter(team);
+          const atBat = currentInning.atBat(batter, defense.lineUp.positions["P"], currentInning);
           this.logger.log("quiet", "atBat", atBat.batter.player.lastName, "vs", atBat.pitcher.player.lastName);
           do {
             const pitcherEnergy = atBat.pitcher.player.energy(this);
@@ -94,7 +98,6 @@ export class Game extends Observable{
             this.logger.log("normal",`  Pitch result: Balls: ${result.balls}, Strikes: ${result.strikes}`);
           } while (atBat.outcome === null);
           this.positionInLineup[team]++;
-          atBats.push(atBat);
         }
         this.logger.log("debug", `End of ${currentInning.state} of the ${inning}th: ${this[team].team.name}'s pitcher ${this[team].lineUp.positions.P.player.lastName} has energy ${this[team].lineUp.positions.P.player.energy(this)}.`);
         this.winner = this.winner ?? this.winnerTeam({ inning, inningState: currentInning.state, outs: outcome.outs });

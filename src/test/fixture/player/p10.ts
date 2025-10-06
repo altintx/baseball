@@ -1,7 +1,7 @@
 import { Player } from "../../../entity/player";
 
 export const p10 = new Player({
-  firstName: "First",
-  lastName: "Last",
+  firstName: "Frith",
+  lastName: "Smith",
   attributes: []
 })
