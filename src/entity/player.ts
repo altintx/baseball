@@ -14,6 +14,7 @@ import { Game } from "./game";
 import { AtBat } from "./at-bat";
 import { Inning } from "./inning";
 import { Pitch } from "./pitch";
+import { GameTeam } from "./game-team";
 
 type NameEntry = { name: string; weight: number };
 type CountryData = {
@@ -198,6 +199,28 @@ export class Player {
       return true; // good chance to move them up
     }
     return false; // default to not bunting
+  }
+
+  battingStats(games: Game[]): {
+    games: number;
+    atBats: number;
+    hittingAverage: number;
+    onBasePercentage: number;
+    rbi: number;
+  } {
+    const gamesCount = games.filter(g => g.home.team.players.find(tp => tp.player === this)).length + games.filter(g => g.away.team.players.find(tp => tp.player === this)).length;
+    const atBats = games.reduce<AtBat[]>((atBats, game) => atBats.concat(game.atBats(this)), []);
+    const atBatsCount = atBats.length;
+    const hittingAverage = atBatsCount === 0 ? 0 : atBats.filter(ab => ab.outcome === "Hit").length / atBatsCount;
+    const onBasePercentage = atBatsCount === 0 ? 0 : (atBats.filter(ab => ab.outcome === "Hit" || ab.outcome === "Walk").length) / atBatsCount;
+    const rbi = atBats.reduce((rbi, ab) => rbi + (ab.rbi ?? 0), 0);
+    return {
+      games: gamesCount,
+      atBats: atBatsCount,
+      hittingAverage,
+      onBasePercentage,
+      rbi
+    };
   }
 
   willSwing(context: { pitch: Pitch }): boolean {
