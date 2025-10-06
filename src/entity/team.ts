@@ -2,6 +2,24 @@ import { ActiveRoster } from "./roster";
 import { TeamPlayer } from "./team-player";
 import { UniformColor } from "./uniform-color";
 
+export const TeamNames = [
+  "Badgers", "Otters", "Comets", "Ravens", "Lynx", "Moose", "Meteors", "Cranes", "Thunders", "Coyotes",
+  "Stallions", "Pelicans", "Cougars", "Beacons", "Fireflies", "Mustangs", "Bison", "Mariners", "Voyagers", "Avalanche",
+  "Owls", "Prairie Dogs", "Jackrabbits", "Minks", "Marlins", "Raccoons", "Gophers", "Sparrows", "Condors", "Hawks",
+  "Wolves", "Hurricanes", "Hornets", "Badlands", "Bobcats", "Crows", "Salamanders", "Rays", "Pandas", "Boars",
+  "Gulls", "Eagles", "Cascades", "Ridges", "Timberwolves", "Huskies", "Falcons", "Foxes", "Caribou", "Sharks",
+  "Vultures", "Tigersharks", "Rattlers", "Panthers", "Grizzlies", "Tortoises", "Crickets", "Phoenixes", "Serpents", "Titans",
+  "Warthogs", "Bandits", "Praetorians", "Nomads", "Pioneers", "Voyageurs", "Highlanders", "Frontiers", "Corsairs", "Buccaneers",
+  "Ironclads", "Steamers", "Locomotives", "Jets", "Orbiters", "Vortex", "Cyclones", "Tempests", "Thunderheads", "Blizzards",
+  "Volcanoes", "Earthquakes", "Quasars", "Asteroids", "Commodores", "Captains", "Navigators", "Trailblazers", "Lumberjacks", "Miners",
+  "Smelters", "Steelworkers", "Shipwrights", "Longshoremen", "Tanners", "Founders", "Forgers", "Alchemists", "Chemists", "Apothecaries",
+  "Knights", "Samurai", "Ronin", "Gladiators", "Centurions", "Legionnaires", "Templars", "Crusaders", "Vikings", "Barbarians",
+  "Rangers", "Hunters", "Trappers", "Wranglers", "Cowhands", "Roughnecks", "Dockers", "Marshals", "Outlaws", "Prospectors",
+  "Sawmills", "Tinkers", "Mechanics", "Pilots", "Astronauts", "Meteorologists", "Cartographers", "Signalmen", "Sentinels", "Wardens",
+  "Defenders", "Guardians", "Observers", "Specters", "Ghosts", "Phantoms", "Mirages", "Eclipses", "Nebulas", "Auroras",
+  "Drifters", "Scribes", "Chroniclers", "Scholars", "Monks", "Hermits", "Pilgrims", "Wanderers", "Pathfinders", "Seekers"
+];
+
 export class Team {
   players: ActiveRoster;
   name: string;
