@@ -8,12 +8,12 @@ describe("field", () => {
   it("should put a guy on first with a single", () => {
     const offense = game1.away;
     const defense = game1.home;
-    const f = new Field(defense.lineUp.positions, game1);
     const inning = new Inning(1, game1);
+    const f = inning.field();
     const batter = offense.lineUp.positions[offense.lineUp.battingOrder[0]];
     expect(batter).toBeInstanceOf(TeamPlayer);
     const outcome = inning.offensive();
-    const atBat = f.atBat(batter, defense.lineUp.positions.P, inning);
+    const _atBat = inning.atBat(batter, defense.lineUp.positions.P, inning);
     f.onBase.H = batter;
     f.advanceRunners("1B", batter, outcome);
     expect(f.onBase["1B"]).toBe(batter);
@@ -44,11 +44,11 @@ describe("field", () => {
   it("should move a runner from first to third on a double", () => {
     const offense = game1.away;
     const defense = game1.home;
-    const f = new Field(defense.lineUp.positions, game1);
     const inning = new Inning(1, game1);
+    const f = inning.field();
     const leadOff = offense.lineUp.positions[offense.lineUp.battingOrder[0]];
     const batter = offense.lineUp.positions[offense.lineUp.battingOrder[1]];
-    const atBat = f.atBat(batter, defense.lineUp.positions.P, inning);
+    const atBat = inning.atBat(batter, defense.lineUp.positions.P, inning);
     expect(batter).toBeInstanceOf(TeamPlayer);
     const outcome = inning.offensive();
     expect(outcome.runs).toBe(0);
@@ -64,11 +64,11 @@ describe("field", () => {
   it("should move a runner from second to home on a triple", () => {
     const offense = game1.away;
     const defense = game1.home;
-    const f = new Field(defense.lineUp.positions, game1);
     const inning = new Inning(1, game1);
+    const f = inning.field();
     const leadOff = offense.lineUp.positions[offense.lineUp.battingOrder[0]];
     const batter = offense.lineUp.positions[offense.lineUp.battingOrder[1]];
-    const atBat = f.atBat(batter, defense.lineUp.positions.P, inning);
+    const atBat = inning.atBat(batter, defense.lineUp.positions.P, inning);
     expect(batter).toBeInstanceOf(TeamPlayer);
     const outcome = inning.offensive();
     expect(outcome.runs).toBe(0);
@@ -84,12 +84,12 @@ describe("field", () => {
   it("should move 3 movements a run, an advance to third, and a hit to second on a double with runners on 2nd and 3rd", () => {
     const offense = game1.away;
     const defense = game1.home;
-    const f = new Field(defense.lineUp.positions, game1);
     const inning = new Inning(1, game1);
+    const f = inning.field();
     const leadOff = offense.lineUp.positions[offense.lineUp.battingOrder[0]];
     const leadOff2 = offense.lineUp.positions[offense.lineUp.battingOrder[1]];
     const batter = offense.lineUp.positions[offense.lineUp.battingOrder[2]];
-    const atBat = f.atBat(batter, defense.lineUp.positions.P, inning);
+    const atBat = inning.atBat(batter, defense.lineUp.positions.P, inning);
     expect(batter).toBeInstanceOf(TeamPlayer);
     const outcome = inning.offensive();
     expect(outcome.runs).toBe(0);
