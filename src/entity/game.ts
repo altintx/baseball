@@ -80,6 +80,7 @@ export class Game extends Observable{
         while (outcome.outs < 3) {
           const batter = this.currentBatter(team);
           const atBat = currentInning.atBat(batter, defense.lineUp.positions["P"], currentInning);
+          this.emit("atBat", atBat);
           this.logger.log("quiet", "atBat", atBat.batter.player.lastName, "vs", atBat.pitcher.player.lastName);
           do {
             const pitcherEnergy = atBat.pitcher.player.energy(this);
@@ -94,6 +95,7 @@ export class Game extends Observable{
               break;
             }
             const result = atBat.simulate(this, currentInning);
+            this.emit("atBatResult", atBat, result);
             this.winner = this.winner ?? this.winnerTeam({ inningState: currentInning.state, outs: outcome.outs });
             this.logger.log("normal",`  Pitch result: Balls: ${result.balls}, Strikes: ${result.strikes}`);
           } while (atBat.outcome === null);
