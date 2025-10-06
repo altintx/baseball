@@ -32,7 +32,7 @@ export class Field {
     return Object.values(this.onBase).reduce((acc, player) => player ? acc + 1 : acc, 0);
   }
 
-  advanceRunners(batterMovesToBase: Base, batter: TeamPlayer, inning: Outcome) {
+  advanceRunners(batterMovesToBase: Base, batter: TeamPlayer, inning: Outcome): void {
     const nextBase: Record<Base, Base> = {
       "1B": "2B",
       "2B": "3B",

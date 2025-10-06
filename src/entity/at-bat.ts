@@ -12,6 +12,7 @@ export class AtBat {
   outcome: AtBatOutcome | null;
   pitches: Pitch[];
   field: Field;
+  hitType?: "Single" | "Double" | "Triple" | "HomeRun";
 
   balls: number;
   strikes: number;
@@ -195,19 +196,23 @@ export class AtBat {
         if(achievedHit && hitQuality > 0.9) {
           game.logger.log("quiet",`   ${this.batter.player.lastName}! Is! Going! All! The! Way!`);
           this.outcome = "Hit";
+          this.hitType = "HomeRun";
           field.advanceRunners("H", this.batter, offensiveInning);
           this.batter.awardExperience(50, game);
         } else if (achievedHit && hitQuality > 0.8) {
           game.logger.log("quiet",`   ${this.batter.player.lastName} takes a trip to third!`);
           this.outcome = "Hit";
+          this.hitType = "Triple";
           field.advanceRunners("3B", this.batter, offensiveInning);
         } else if (achievedHit && hitQuality > 0.7) {
           game.logger.log("quiet",`   ${this.batter.player.lastName} pays bills with a double!`);
           this.outcome = "Hit";
+          this.hitType = "Double";
           field.advanceRunners("2B", this.batter, offensiveInning);
         } else if (achievedHit && hitQuality > 0.4) {
           game.logger.log("quiet",`   ${this.batter.player.lastName}: Base hit!`);
           this.outcome = "Hit";
+          this.hitType = "Single";
           field.advanceRunners("1B", this.batter, offensiveInning);
         } else {
           game.logger.log("quiet",`   ${this.batter.player.lastName} swings and misses!`);

@@ -2,12 +2,11 @@ import { AtBat } from "./at-bat";
 import { Inning } from "./inning";
 import { Team } from "./team";
 import { Lineup } from "./lineup";
-import { Field } from "./field";
 import { GameTeam } from "./game-team";
 import { Player } from "./player";
 import { Pitch } from "./pitch";
 import { Observable } from "./observable";
-import { LogLevel, LogLevels } from "../logging/level";
+import { LogLevel } from "../logging/level";
 import { Logger } from "../logging/logger";
 import { TeamPlayer } from "./team-player";
 
