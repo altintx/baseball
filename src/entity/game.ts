@@ -41,10 +41,10 @@ export class Game extends Observable{
     this.logger = new Logger(logLevel);
   }
 
-  winnerTeam(context: { inning: number; inningState: "Top" | "Bottom", outs: number }): Team | null {
+  winnerTeam(context: { inningState: "Top" | "Bottom", outs: number }): Team | null {
     if(this.innings.length >= 9 && this.runs('home') > this.runs('away')) {
       return this.home.team;
-    } else if(context.inning >= 9 && context.inningState === "Bottom" && this.runs('away') > this.runs('home')) {
+    } else if(this.innings.length >= 9 && context.inningState === "Bottom" && context.outs === 3 && this.runs('away') > this.runs('home')) {
       return this.away.team;
     }
     return null;
@@ -65,7 +65,7 @@ export class Game extends Observable{
   }
 
   simulate(): Game {
-    for(let inning = 1; !this.winner || inning <= 9; inning++) {
+    for(let inning = (this.innings[0]?.number ?? 0) + 1; !this.winner || inning <= 9; inning++) {
       if(this.winner) break;
       const currentInning = this.newInning(inning);
       for(let team: "home" | "away" | null = "away"; team !== null && !this.winner; team = team === "away" ? "home" : null) {
@@ -94,13 +94,13 @@ export class Game extends Observable{
               break;
             }
             const result = atBat.simulate(this, currentInning);
-            this.winner = this.winner ?? this.winnerTeam({ inning, inningState: currentInning.state, outs: outcome.outs });
+            this.winner = this.winner ?? this.winnerTeam({ inningState: currentInning.state, outs: outcome.outs });
             this.logger.log("normal",`  Pitch result: Balls: ${result.balls}, Strikes: ${result.strikes}`);
           } while (atBat.outcome === null);
           this.positionInLineup[team]++;
         }
         this.logger.log("debug", `End of ${currentInning.state} of the ${inning}th: ${this[team].team.name}'s pitcher ${this[team].lineUp.positions.P.player.lastName} has energy ${this[team].lineUp.positions.P.player.energy(this)}.`);
-        this.winner = this.winner ?? this.winnerTeam({ inning, inningState: currentInning.state, outs: outcome.outs });
+        this.winner = this.winner ?? this.winnerTeam({ inningState: currentInning.state, outs: outcome.outs });
       }
     }
     return this;

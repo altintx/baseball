@@ -49,7 +49,8 @@ describe("player", () => {
       const p = new Player({
         firstName: "Test",
         lastName: "Player",
-        attributes: []
+        attributes: [],
+        broadPosition: "infielder"
       });
       expect(p.battingStats([])).toEqual({
         games: 0,

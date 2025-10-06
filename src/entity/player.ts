@@ -64,6 +64,8 @@ export function generateLastName(country: Country, temperature: number): string 
   return weightedChoice(namesByCountry[country].last, temperature);
 }
 
+export const BroadPositions = ['infielder', 'outfielder', 'catcher', 'pitcher'] as const;
+export type BroadPosition = typeof BroadPositions[number];
 
 
 export class Player {
@@ -73,19 +75,21 @@ export class Player {
   gender: Gender;
   proficencies: PlayerAttributePoint[];
   dexterity: Dexterity;
+  positionClassification: BroadPosition;
 
   hp: number;
   experience: number;
 
   static defaultAttributeValue = 9;
 
-  constructor(attributes: { firstName: string, lastName: string, attributes: PlayerAttributePoint[], country?: Country, gender?: Gender, dexterity?: Dexterity }) {
+  constructor(attributes: { firstName: string, lastName: string, broadPosition: BroadPosition, attributes: PlayerAttributePoint[], country?: Country, gender?: Gender, dexterity?: Dexterity }) {
     this.firstName = attributes.firstName;
     this.lastName = attributes.lastName;
     this.proficencies = attributes.attributes;
     this.country = attributes.country ?? "USA";
     this.gender = attributes.gender ?? "male";
     this.dexterity = attributes.dexterity ?? "Right";
+    this.positionClassification = attributes.broadPosition;
     this.hp = 100;
     this.experience = 0;
   }
@@ -100,7 +104,8 @@ export class Player {
   static generate<TCountry extends Country, TGender extends Gender>(
     temperature: number,
     country: TCountry,
-    gender: TGender
+    gender: TGender,
+    position: BroadPosition
   ): Player {
     const dexterity = (temperature < 0.05 ? "Ambidextrous" as const: Math.random() < 0.6 ? "Right" as const : "Left" as const);
     const attributes: PlayerAttributePoint[] = [];
@@ -113,7 +118,8 @@ export class Player {
       gender,
       country,
       attributes,
-      dexterity
+      dexterity,
+      broadPosition: position
     };
     return new Player(playerAttributes);
   }
