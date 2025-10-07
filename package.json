@@ -10,6 +10,7 @@
   },
   "scripts": {
     "app": "tsx src/app.ts",
+    "schedule-season": "tsx src/schedule-season.ts",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",

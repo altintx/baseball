@@ -1,3 +1,8 @@
+import { Cities } from "./city";
+import { Countries } from "./country";
+import { Genders } from "./gender";
+import { BroadPosition, BroadPositions, Player } from "./player";
+import { PlayerPosition, PlayerPositions } from "./player-position";
 import { ActiveRoster } from "./roster";
 import { TeamPlayer } from "./team-player";
 import { UniformColor } from "./uniform-color";
@@ -42,6 +47,51 @@ export class Team {
       throw new Error(`Team ${this.name} has duplicate player numbers`);
     }
     this.players = attributes.players;
+  }
+
+  static assembleNewTeam(playerPool: Player[], city: string, name: string, draftDate: Date): Team {
+    if(playerPool.length < 20) throw new Error("Not enough players in pool to assemble a team");
+    const players: Player[] = [];
+    const positions: BroadPosition[] = ["pitcher", "pitcher", "catcher", "catcher", "infielder", "infielder", "infielder", "infielder", "infielder", "outfielder", "outfielder", "outfielder", "outfielder", "outfielder"]
+    for(let draft = 0; draft < 25; draft++) {
+      const position = positions.shift();
+      const pIndex = playerPool.findIndex((p) => position ? p.positionClassification === position : true);
+      if(pIndex === -1) {
+        throw new Error("Not enough players in pool to assemble a team with required positions");
+      }
+      players.push(playerPool.splice(pIndex, 1)[0]);
+    }
+    const positionsToFill: Record<BroadPosition, PlayerPosition[]> = {
+      pitcher: Array.from({ length: 12 }, () => "P"),
+      catcher: Array.from({ length: 12 }, () => "C"),
+      infielder: ["1B", "2B", "3B", "SS", ...Array.from({ length: 12 }, () => "1B" as const)],
+      outfielder: ["LF", "CF", "RF", ...Array.from({ length: 12 }, () => "LF" as const)]
+    }
+    const playerNumbers = new Set<number>();
+    while(playerNumbers.size < players.length) {
+      playerNumbers.add(1 + Math.floor(Math.random() * 99));
+    }
+    const playerNumbersValues = Array.from(playerNumbers);
+    const team = new Team({
+      name,
+      city,
+      players: players.map((p, i) => new TeamPlayer({
+        player: p,
+        position: positionsToFill[p.positionClassification].shift()!,
+        number: playerNumbersValues.pop()!,
+        activeFrom: draftDate,
+        activeTo: null
+      })) as ActiveRoster,
+      homeColor: [
+        new UniformColor({ name: "Primary", primaryColor: { r: Math.floor(50 + Math.random() * 205), g: Math.floor(50 + Math.random() * 205), b: Math.floor(50 + Math.random() * 205) }, detailColor: { r: Math.floor(50 + Math.random() * 205), g: Math.floor(50 + Math.random() * 205), b: Math.floor(50 + Math.random() * 205) } }),
+        new UniformColor({ name: "Secondary", primaryColor: { r: Math.floor(50 + Math.random() * 205), g: Math.floor(50 + Math.random() * 205), b: Math.floor(50 + Math.random() * 205) }, detailColor: { r: Math.floor(50 + Math.random() * 205), g: Math.floor(50 + Math.random() * 205), b: Math.floor(50 + Math.random() * 205) } })
+      ],
+      awayColor: [
+        new UniformColor({ name: "Primary", primaryColor: { r: Math.floor(50 + Math.random() * 205), g: Math.floor(50 + Math.random() * 205), b: Math.floor(50 + Math.random() * 205) }, detailColor: { r: Math.floor(50 + Math.random() * 205), g: Math.floor(50 + Math.random() * 205), b: Math.floor(50 + Math.random() * 205) } }),
+        new UniformColor({ name: "Secondary", primaryColor: { r: Math.floor(50 + Math.random() * 205), g: Math.floor(50 + Math.random() * 205), b: Math.floor(50 + Math.random() * 205) }, detailColor: { r: Math.floor(50 + Math.random() * 205), g: Math.floor(50 + Math.random() * 205), b: Math.floor(50 + Math.random() * 205) } })
+      ]
+    });
+    return team;
   }
 
   bestPitcher(): TeamPlayer {

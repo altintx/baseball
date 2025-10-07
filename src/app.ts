@@ -1,5 +1,6 @@
 import { renderFieldAsText } from "./components/field";
 import { renderScoreBoardAsText } from "./components/score-board";
+import { playerStatsToText } from "./components/stat-line";
 import { AtBat } from "./entity/at-bat";
 import { Game } from "./entity/game";
 import { Team } from "./entity/team";
@@ -10,8 +11,7 @@ const teams: Team[] = [baltimoreFederals, cheyenneBaldEagles];
 for (const team of teams) {
   console.log(`${team.city} ${team.name} Roster:`);
   for (const tp of team.players) {
-    const a = tp.player.playerAttributes();
-    console.log(`- #${tp.number} ${tp.player.lastName}, ${tp.player.firstName} (${tp.position}, ${tp.player.battingSide('brief')}) STR ${a.Strength} INT ${a.Intelligence} DEX ${a.Dexterity} CHA ${a.Charisma} CON ${a.Constitution} WIS ${a.Wisdom}`);
+    console.log(playerStatsToText(tp));
   }
 }
 
