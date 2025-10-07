@@ -33,7 +33,12 @@ console.log(`Scheduled ${season.schedule.length} games for ${teams.length} teams
 // for(const game of season.schedule) {
 //   console.log(`${game.date.toDateString()}: ${game.away.team.city} ${game.away.team.name} at ${game.home.team.city} ${game.home.team.name}`);
 //}
-const particularTeam = teams[0]!;
-for(const game of season.schedule.filter(g => g.home.team === particularTeam || g.away.team === particularTeam)) {
-  console.log(`${game.date.toDateString()} ${game.date.toTimeString()}: ${game.away.team.city} ${game.away.team.name} at ${game.home.team.city} ${game.home.team.name}`);
+// const particularTeam = teams[0]!;
+// for(const game of season.schedule.filter(g => g.home.team === particularTeam || g.away.team === particularTeam)) {
+//   console.log(`${game.date.toDateString()} ${game.date.toTimeString()}: ${game.away.team.city} ${game.away.team.name} at ${game.home.team.city} ${game.home.team.name}`);
+// }
+
+for(const game of season.schedule) {
+  const result = game.simulate();
 }
+console.log(season.standings());

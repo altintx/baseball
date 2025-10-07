@@ -220,4 +220,29 @@ export class Season {
     })
     return this.schedule;
   }
+
+  standings(): { team: Team; wins: number; losses: number; winPct: number }[] {
+    const records: Record<string, { team: Team; wins: number; losses: number }> = {};
+    for (const team of this.teams) {
+      records[team.abbreviation()] = { team, wins: 0, losses: 0 };
+    }
+    for (const game of this.schedule) {
+      if (game.runs('home') > game.runs('away')) {
+        records[game.home.team.abbreviation()].wins++;
+        records[game.away.team.abbreviation()].losses++;
+      } else if (game.runs('away') > game.runs('home')) {
+        records[game.away.team.abbreviation()].wins++;
+        records[game.home.team.abbreviation()].losses++;
+      }
+      // ties are ignored for simplicity
+    }
+    const standings = Object.values(records).map(r => ({
+      team: r.team,
+      wins: r.wins,
+      losses: r.losses,
+      winPct: r.wins + r.losses > 0 ? r.wins / (r.wins + r.losses) : 0
+    }));
+    standings.sort((a, b) => b.winPct - a.winPct || b.wins - a.wins);
+    return standings;
+  }
 }
