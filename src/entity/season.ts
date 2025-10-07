@@ -70,7 +70,7 @@ export class Season {
         const gamesToAdd = Math.min(gamesPerBlock, remainingGames);
         
         for (let i = 0; i < gamesToAdd; i++) {
-          block.push(new Game(home, away, new Date(0))); // placeholder date
+          block.push(new Game(home, away, new Date(0), 'none')); // placeholder date
         }
         
         if (block.length > 0) {
