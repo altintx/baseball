@@ -1,9 +1,10 @@
 import { Game } from "./game";
+import { Observable } from "./observable";
 import { Player } from "./player";
 import { PlayerPosition } from "./player-position";
 
 const assignments: Map<Player, TeamPlayer> = new Map();
-export class TeamPlayer {
+export class TeamPlayer extends Observable  {
   player: Player;
   number: number;
   position: PlayerPosition;
@@ -17,6 +18,7 @@ export class TeamPlayer {
     activeFrom: Date;
     activeTo?: Date | null;
   }) {
+    super();
     this.player = attributes.player;
     this.number = attributes.number;
     this.position = attributes.position;
@@ -32,6 +34,11 @@ export class TeamPlayer {
   awardExperience(amount: number, game: Game) {
     game.logger.log("debug",`   ${this.player.lastName} gains ${amount} experience points.`);
     this.player.experience += amount;
+    if(this.player.experience > this.player.nextLevelAtExperience()) {
+      this.player.level++;
+      this.emit('levelUp', this);
+      game.logger.log("normal",`   ${this.player.lastName} has reached level ${this.player.level}!`);
+    }
   }
 
   toString() {

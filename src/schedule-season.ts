@@ -22,7 +22,10 @@ for(let i = 0; i < 28; i++) {
 for(const team of teams) {
   console.log(`Team: ${team.name}, City: ${team.city}, Players: ${team.players.length}`);
   for (const tp of team.players) {
-    console.log(playerStatsToText(tp));
+    tp.on('levelUp', (tp) => {
+      console.log("   ", tp.player.lastName, "has reached level", tp.player.level);
+    });
+    // console.log(playerStatsToText(tp));
   }
 }
 const apr1ThisYear = new Date(new Date().getFullYear(), 3, 1);

@@ -79,10 +79,12 @@ export class Player {
 
   hp: number;
   experience: number;
+  level: number = 1;
+  static maxLevel = 35; // when you hit max level, you retire
 
   static defaultAttributeValue = 9;
 
-  constructor(attributes: { firstName: string, lastName: string, broadPosition: BroadPosition, attributes: PlayerAttributePoint[], country?: Country, gender?: Gender, dexterity?: Dexterity }) {
+  constructor(attributes: { firstName: string, lastName: string, broadPosition: BroadPosition, attributes: PlayerAttributePoint[], country?: Country, gender?: Gender, dexterity?: Dexterity, level?: number }) {
     this.firstName = attributes.firstName;
     this.lastName = attributes.lastName;
     this.proficencies = attributes.attributes;
@@ -158,6 +160,10 @@ export class Player {
     const buff = this.playerAttributes()[attribute] - Player.defaultAttributeValue;
     const random = 1 + Math.floor(Math.random() * dice);
     return Math.max(1, Math.min(dice, (options?.buff ?? 0) + buff + random));
+  }
+
+  nextLevelAtExperience(): number {
+    return this.level * 2000;
   }
 
   willTryToSteal(context: { atBat: AtBat, inning: Inning; scoreDifference: number; me: TeamPlayer }): boolean {
