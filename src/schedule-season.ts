@@ -41,4 +41,14 @@ console.log(`Scheduled ${season.schedule.length} games for ${teams.length} teams
 for(const game of season.schedule) {
   const result = game.simulate();
 }
-console.log(season.standings());
+// console.log(season.standings());
+
+// how to find the top players
+const allPlayersStats = teams.flatMap(t => t.players).map(tp => ({
+  player: tp.player,
+  battingStats: tp.player.battingStats(season.schedule)
+})).sort((a, b) => b.player.experience - a.player.experience);
+const bestPlayer = allPlayersStats[0];
+const worstPlayer = allPlayersStats[allPlayersStats.length - 1];
+console.log(bestPlayer);
+console.log(worstPlayer);
